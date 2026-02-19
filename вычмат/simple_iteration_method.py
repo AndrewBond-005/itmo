@@ -64,14 +64,18 @@ def solve(m, vector, n, eps):
                         ind[j] = ans[idx]
                         idx += 1
                 break
-    # перестановка строк
+
+    for  i in range(0,n):
+        if mxv[i]==0:
+            return "Одна из строк состоит из нулей - решений нет"
     ans = [[] for i in range(n)]
     v = vector.copy()
     for i in range(0, n):
         ans[ind[i]] = m[i]
         vector[ind[i]] = v[i]
     mx = [mxv[ind[i]] for i in range(n)]
-    # матрица С
+
+
     C = [[] for i in range(n)]
     for i in range(0, n):
         for j in range(0, n):
@@ -80,13 +84,15 @@ def solve(m, vector, n, eps):
             else:
                 C[i].append(-ans[i][j] / mx[i])
 
-    # норма
+
     norm = 0
     for j in range(0, n):
         summ = 0
         for i in range(0, n):
             summ += abs(C[i][j])
         norm = max(norm, summ)
+
+
     v = [vector[i] / mx[i] for i in range(n)]
     xprev = [v[i] for i in range(n)]
     xcurr = [0 for i in range(n)]
@@ -101,7 +107,6 @@ def solve(m, vector, n, eps):
 def simple_iteration_method(n, eps, v, C, xprev, xcurr):
     maxx = eps + 1
     cnt = 0
-    # итерации
     while abs(maxx) >= eps and cnt <= 300:
         cnt += 1
         maxx = 0
