@@ -9,7 +9,7 @@ def solve(a,b,eps,f,lam):
         i += 1
         xn = phi(x,f,lam)
         if abs(xn - x) < eps:
-            return xn
+            return xn,i
         if xn < a or xn > b:
             xn = a + (b - a) * random.random()
         x = xn
@@ -36,4 +36,4 @@ def lamd(a, b,f):
 
 def simple_iteration(f, a, b, eps):
     lam = lamd(a, b,f)
-    return solve()
+    return solve(a,b,eps,f,lam)

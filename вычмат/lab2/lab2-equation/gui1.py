@@ -109,12 +109,12 @@ def find_roots():
             # Вызываем соответствующий метод
             if method == "Ньютона":
                 x0 = (a + b) / 2
-                res = newton(x0, eps, func_idx)
+                res = newton(x0, eps,  fl[func_idx])
             elif method == "Хорд":
-                res = chord(a, b, eps, func_idx)
+                res = chord(a, b, eps,  fl[func_idx])
             else:  # Простой итерации
-                res = simple_iteration(func_idx, a, b, eps)
-
+                res = simple_iteration( fl[func_idx], a, b, eps)
+            res_labels[i].config(text=f"Корень {i + 1}: {res}", foreground="red")
             # ПРОВЕРКА: если результат - строка, значит метод вернул сообщение об ошибке
             if isinstance(res, str):
                 res_labels[i].config(text=f"Корень {i + 1}: {res}", foreground="red")
