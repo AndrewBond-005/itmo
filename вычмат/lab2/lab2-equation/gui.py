@@ -18,7 +18,7 @@ from root import check_one_root
 # ============ ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ============
 func_idx = 1
 eps = 1e-6
-intervals = [[-3, -1.1], [-0.9, 1], [1, 3]]
+intervals = [[-3, -0.9], [-0.9, 1], [1, 3]]
 methods = ["Ньютона", "Хорд", "Простой итерации"]
 results = [None, None, None]
 iterations = [0, 0, 0]  # для хранения количества итераций
@@ -139,7 +139,7 @@ def find_roots():
             # Вызываем соответствующий метод и обрабатываем результат
             if method == "Ньютона":
                 x0 = (a + b) / 2
-                result = newton(x0, eps, fl[func_idx])
+                result = newton(a,b,x0, eps, fl[func_idx])
             elif method == "Хорд":
                 result = chord(a, b, eps, fl[func_idx])
             else:  # Простой итерации
@@ -155,7 +155,6 @@ def find_roots():
             elif isinstance(result, tuple) and len(result) == 2:
                 # Успешный результат - распаковываем кортеж
                 res, iter_count = result
-
                 # ПРОВЕРКА: если результат - не число
                 if not isinstance(res, (int, float)):
                     res_labels[i].config(text=f"Корень {i + 1}: некорректный результат", foreground="red")
