@@ -14,7 +14,6 @@ def check_one_root(f, a, b):
         x = a + i * step
         curr = f(x)
         if prev * curr <= 0:
-            print(x)
             sign_changes += 1
         prev = curr
     return sign_changes
