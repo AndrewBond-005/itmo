@@ -5,10 +5,10 @@ from funcs import *
 def solve(a,b,eps,f,lam):
     x = (a + b) / 2
     i = 0
-    while i <= 500:
+    while i <= 2000:
         i += 1
         xn = phi(x,f,lam)
-        if abs(xn - x) < eps:
+        if abs(f(x)) < eps:
             return xn,i
         if xn < a or xn > b:
             xn = a + (b - a) * random.random()
@@ -17,6 +17,8 @@ def solve(a,b,eps,f,lam):
 
 
 def phi(x, f,lam):
+    if df(f,x)<0:
+        lam*=-1
     return x + lam * f(x)
 
 

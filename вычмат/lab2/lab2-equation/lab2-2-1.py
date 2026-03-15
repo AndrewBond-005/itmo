@@ -31,7 +31,7 @@ while True:
         print(f"Произошла непредвиденная ошибка {e}")
 
     try:
-        x=simple_iteration(fl[n],a,b,eps)
+        x=chord(a,b,eps,fl[n])
         print("Ответ метода простой итерации:", x,fl[n](x))
     except ZeroDivisionError:
         print("Произошло деление на ноль в вычилениях. " +
@@ -49,7 +49,7 @@ while True:
         print(f"Произошла непредвиденная ошибка {e}")
 
     try:
-        x=newton((a+b)/2,eps,fl[n])
+        x=chord(a,b,eps,fl[n])
         print("Ответ метода Ньютона:", x, fl[n](x))
     except ZeroDivisionError:
         print("Произошло деление на ноль в вычилениях. "+

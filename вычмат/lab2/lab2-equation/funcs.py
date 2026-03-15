@@ -14,6 +14,9 @@ def f3(x):
     x=x+1
     return exp(2*x)/(x**2)-15
 
+def df3(x):
+    return (2*((x+1)**2)*(e**(2*(x+1)))-(2*(x+1))*(e**(2*(x+1)))) / ((x+1)**4)
+
 
 def f4(x):
     return 2*log(abs(x-0.5)+1,3) -3 *sin(abs(x-0.5))
@@ -31,3 +34,7 @@ fl = {
     3: f3,
     4: f4
 }
+
+def df(f,x):
+    h = max(1e-8, abs(x) * 1e-8)
+    return (f(x + h) - f(x - h)) / (h)

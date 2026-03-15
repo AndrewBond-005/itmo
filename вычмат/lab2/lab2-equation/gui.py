@@ -18,13 +18,24 @@ from root import check_one_root
 # ============ ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ============
 func_idx = 1
 eps = 1e-6
-intervals = [[-3, -1], [-1, 1], [1, 3]]
+intervals = [[-3, -1.1], [-0.9, 1], [1, 3]]
 methods = ["Ньютона", "Хорд", "Простой итерации"]
 results = [None, None, None]
 iterations = [0, 0, 0]  # для хранения количества итераций
 
 
 # ============ ФУНКЦИИ ОБРАБОТКИ ============
+def parse_float(value):
+    """Преобразует строку в число, поддерживая запятые"""
+    if isinstance(value, (int, float)):
+        return value
+    try:
+        # Заменяем запятую на точку и преобразуем в float
+        return float(str(value).replace(',', '.'))
+    except (ValueError, TypeError):
+        raise ValueError(f"Невозможно преобразовать '{value}' в число")
+
+
 def update_plot():
     """Обновляет график"""
     global func_idx, results
@@ -46,8 +57,8 @@ def update_plot():
     b_vals = []
     for i in range(3):
         try:
-            a_vals.append(a_vars[i].get())
-            b_vals.append(b_vars[i].get())
+            a_vals.append(parse_float(a_vars[i].get()))
+            b_vals.append(parse_float(b_vars[i].get()))
         except:
             a_vals.append(intervals[i][0])
             b_vals.append(intervals[i][1])
@@ -69,8 +80,8 @@ def update_plot():
     colors = ['red', 'green', 'orange']
     for i in range(3):
         try:
-            a = a_vars[i].get()
-            b = b_vars[i].get()
+            a = parse_float(a_vars[i].get())
+            b = parse_float(b_vars[i].get())
             ax.axvspan(a, b, alpha=0.2, color=colors[i])
         except:
             pass  # пропускаем если ошибка получения значения
@@ -98,13 +109,26 @@ def find_roots():
     global results, func_idx, eps, iterations
 
     func_idx = func_var.get()
-    eps = eps_var.get()
+
+    # Преобразуем точность с поддержкой запятой
+    try:
+        eps = parse_float(eps_var.get())
+    except ValueError:
+        messagebox.showerror("Ошибка", "Некорректное значение точности")
+        return
+
     results = [None, None, None]
     iterations = [0, 0, 0]
 
     for i in range(3):
-        a = a_vars[i].get()
-        b = b_vars[i].get()
+        try:
+            # Преобразуем границы интервала с поддержкой запятой
+            a = parse_float(a_vars[i].get())
+            b = parse_float(b_vars[i].get())
+        except ValueError:
+            res_labels[i].config(text=f"Корень {i + 1}: некорректное число", foreground="red")
+            continue
+
         method = method_vars[i].get()
 
         if a >= b:
@@ -236,13 +260,14 @@ for i in range(3):
 
     ttk.Label(frame, text="Интервал [a, b]:").grid(row=0, column=0, sticky="w", padx=2)
 
-    a_var = tk.DoubleVar(value=intervals[i][0])
+    # Используем StringVar вместо DoubleVar для поддержки запятых
+    a_var = tk.StringVar(value=str(intervals[i][0]).replace('.', ','))
     a_vars.append(a_var)
     ttk.Entry(frame, textvariable=a_var, width=7).grid(row=0, column=1, padx=1)
 
     ttk.Label(frame, text="—").grid(row=0, column=2, padx=1)
 
-    b_var = tk.DoubleVar(value=intervals[i][1])
+    b_var = tk.StringVar(value=str(intervals[i][1]).replace('.', ','))
     b_vars.append(b_var)
     ttk.Entry(frame, textvariable=b_var, width=7).grid(row=0, column=3, padx=1)
 
@@ -256,7 +281,12 @@ for i in range(3):
 
 
 def safe_update(*args):
+    """Безопасное обновление графика с обработкой запятых"""
     try:
+        # Пробуем получить и преобразовать все значения
+        for i in range(3):
+            parse_float(a_vars[i].get())
+            parse_float(b_vars[i].get())
         update_plot()
     except:
         pass
@@ -269,7 +299,8 @@ ttk.Separator(left, orient="horizontal").grid(row=13, column=0, columnspan=2, st
 
 # Точность
 ttk.Label(left, text="Точность:").grid(row=14, column=0, sticky="w", pady=3)
-eps_var = tk.DoubleVar(value=eps)
+# Используем StringVar для точности тоже
+eps_var = tk.StringVar(value=str(eps).replace('.', ','))
 ttk.Entry(left, textvariable=eps_var, width=12).grid(row=14, column=1, sticky="w", pady=3)
 
 # Кнопки
