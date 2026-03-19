@@ -10,8 +10,6 @@ def solve(a,b,eps,f,lam):
         xn = phi(x,f,lam)
         if abs(f(x)) < eps:
             return xn,i
-        if xn < a or xn > b:
-            xn = a + (b - a) * random.random()
         x = xn
     return "Метод не сошёлся"
 
