@@ -19,7 +19,6 @@ def parse_float(value):
         raise ValueError(f"Невозможно преобразовать '{value}' в число")
 
 
-# Описания систем (обновлено)
 systems = [
     (fs[0][0], fs[0][1], "x² + y² = 4, y = 3x²"),
     (fs[1][0], fs[1][1], "sin²(2x) - cos²(x) = y, -sin(2x-1)/2 = y"),
