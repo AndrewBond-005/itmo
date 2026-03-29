@@ -34,6 +34,7 @@ while True:
         for i in range(0,3):
             print(f"{type[i]}: {ans[i]}, разбиений {m[i]}, "
                   f"погрешность: {abs((ans[i] - truly) / truly) * 100:.4f}%")
+        print(f"Правильный ответ: {truly:.4f}")
     else:
         print(ms[mn] + " дал ответ:", ans[0])
         print("Число разбиений:", m[0])
