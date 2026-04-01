@@ -1,6 +1,6 @@
 def enter():
     print("Данные вводятся в таком порядке: номер функции, номер метода, интервал, точность")
-    print("Введите номер функции - целое число от 1 до 4")
+    print("Введите номер функции - целое число от 1 до 7")
     while (True):
         print("Номер функции: ", end=" ")
         inp = input()
@@ -8,10 +8,10 @@ def enter():
             return "Выход"
         try:
             n = float(inp.strip().replace(',', '.'))
-            if (n <= 4 and n > 0) and n.is_integer():
+            if (n <= 7 and n > 0) and n.is_integer():
                 fn = int(n)
                 break
-            print("Номер функции это число от 1 до 4")
+            print("Номер функции это число от 1 до 7")
         except ValueError:
             print("Номер должен быть целым числом")
 
@@ -26,7 +26,7 @@ def enter():
             if (n <= 3 and n > 0) and n.is_integer():
                 mn = int(n)
                 break
-            print("Номер метода это число от 1 до 2")
+            print("Номер метода это число от 1 до 3")
         except ValueError:
             print("Номер должен быть целым числом")
 

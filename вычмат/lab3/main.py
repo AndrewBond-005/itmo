@@ -26,19 +26,28 @@ while True:
     n=4
     fn-=1
     mn-=1
-    ans,m=solve(fs[fn],mn,a,b,n,eps)
+    result = solve(fn, mn, a, b, n, eps)
+    if len(result) == 3:
+        print(result[2])
+        continue
+    else:
+        ans, m = result
     truly=Fs[fn](b)-Fs[fn](a)
     if(mn==0):
         print(ms[mn] + " дал ответ:")
         type=["Левые","Средние","Правые"]
         for i in range(0,3):
-            print(f"{type[i]}: {ans[i]}, разбиений {m[i]}, "
+            if (truly > 1e-5):
+                print(f"{type[i]}: {ans[i]}, разбиений {m[i]}, "
                   f"погрешность: {abs((ans[i] - truly) / truly) * 100:.4f}%")
+            else:
+                print(f"{type[i]}: {ans[i]}, разбиений {m[i]}")
         print(f"Правильный ответ: {truly:.4f}")
     else:
-        print(ms[mn] + " дал ответ:", ans[0])
-        print("Число разбиений:", m[0])
+        print(ms[mn] + " дал ответ:", ans)
+        print("Число разбиений:", m)
         print(f"Правильный ответ: {truly:.4f}")
-        print(f"Относительная погрешность: {abs((ans[0] - truly) / truly) * 100:.4f}%")
+        if(abs(truly)>10**-5):
+            print(f"Относительная погрешность: {abs((ans - truly) / truly) * 100:.4f}%")
 
     print()
