@@ -62,14 +62,36 @@ def solve(fn, mn, a, b, n, eps):
                 fa=abs(f(a1))
                 fb=abs(f(b1))
                 diff = (fa-fb) / max(fa, fb)
-                lg=abs(np.log10(fa))
-                if diff < max(0.1,0.1 *lg):
-                    if(a==a1):
+                if fa<10**-4:
+                    lg=-4
+                else:
+                    lg=abs(np.log10(fa))
+                d= (f(a1)>0 and f(b1)<0) or (f(a1)<0 and f(b1)>0)
+                if diff < max(0.1,0.1 *lg) and d:
+                    print("Функция симметричная относительно точки разрыва с измением знака ")
+                    if abs(a1 - a) < 1e-10 and abs(b1 - b) < 1e-10:
+                        a1*=0.9
+                        b1*=0.9
+                        left_res = govnokod(mn, f, a, g, n, k, eps)
+                        right_res = govnokod(mn, f, g, b, n, k, eps)
+                        if isinstance(left_res, list) and isinstance(right_res, list):
+                            if mn == 0:
+                                total_ans = [left[0] + right[0] for left, right in zip(left_res[0], right_res[0])]
+                                total_m = [left + right for left, right in zip(left_res[1], right_res[1])]
+                                return [total_ans, total_m]
+                            else:
+                                total_ans = left_res[0] + right_res[0]
+                                total_m = left_res[1] + right_res[1]
+                                return [total_ans, total_m]
+                        else:
+                            # Если один из кусков вернул ошибку
+                            return [None, None, "Ошибка при вычислении одного из симметричных интервалов"]
+                    elif(a==a1):
                         return govnokod(mn, f, b1, b, n, k, eps)
                     else:
                         return govnokod(mn, f, a, a1, n, k, eps)
                 else:
-                    return [None, None, f"Условие симметрии около точки разрыва не выполнено (разница {diff} > {max(0.1,0.1 *lg)}"]
+                    return [None, None, f"Условие симметрии около точки разрыва не выполнено - не считаем (разница {diff} > {max(0.1,0.1 *lg)}"]
         else:
             return govnokod(mn, f, a, b, n, k, eps)
     else:

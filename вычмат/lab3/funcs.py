@@ -18,7 +18,7 @@ def f5(x):
     return (x + 1) / (x - 1) + math.sin(x - 1) - 1
 
 def f6(x):
-    return math.log(abs(x - 1)) - x + 1
+    return math.log(abs(x - 1)) - x
 
 def f7(x):
     return 0.5 * (9 * math.exp(math.sin(5*x + 4) / 2) / ((x + 2) ** (1/3)))
@@ -48,7 +48,7 @@ def F5(x, constant=0):
     return 2* math.log(abs(x - 1)) - math.cos(x - 1)
 
 def F6(x, constant=0):
-    return  math.log(abs(x - 1)) * (x - 1) - (x ** 2) / 2
+    return  math.log(abs(x - 1)) * (x - 1) - (x ** 2) / 2 -x
 
 
 Fs = [F1,F2,F3,F4,F5,F6]

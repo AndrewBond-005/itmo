@@ -31,43 +31,71 @@ def help():
 
 help()
 while True:
+    print()
     res = enter()
     if(res==None):
         sys.exit(1)
-    fn, mn, a,b, eps = res
-    n=4
-    fn-=1
-    mn-=1
-    result = solve(fn, mn, a, b, n, eps)
-    if len(result) == 3:
-        print(result[2])
-        print()
-        continue
-    else:
-        ans, m = result
-
-    if(Fs[fn]!=None):
-        truly=Fs[fn](b)-Fs[fn](a)
-    else:
-        truly=None
-    print()
-    if(mn==0):
-        print(ms[mn] + " дал ответ:")
-        type=["Левые","Средние","Правые"]
-        for i in range(0,3):
-            if (truly!=None and abs(truly) > 10**-5):
-                print(f"{type[i]}: {ans[i]}, разбиений {m[i]}, "
-                  f"погрешность: {abs((ans[i] - truly) / truly) * 100:.4f}%")
+    fn, mnin, a, b, eps = res
+    n = 4
+    fn -= 1
+    mn = mnin - 1
+    if mn == 3:
+        for method_idx in range(3):
+            print(f"\n{ms[method_idx]}")
+            result = solve(fn, method_idx, a, b, n, eps)
+            if len(result) == 3:
+                print(result[2])
+                print()
+                continue
+            ans, m = result
+            if Fs[fn] is not None:
+                truly = Fs[fn](b) - Fs[fn](a)
             else:
-                print(f"{type[i]}: {ans[i]}, разбиений {m[i]}")
-        if(truly!=None):
-            print(f"Правильный ответ: {truly:.4f}")
+                truly = None
+            if method_idx == 0:
+                types = ["Левые", "Средние", "Правые"]
+                for i in range(3):
+                    if truly is not None and abs(truly) > 1e-5:
+                        rel_err = abs((ans[i] - truly) / truly) * 100
+                        print(f"{types[i]}: {ans[i]:.10f}, разбиений {m[i]}, "
+                              f"погрешность: {rel_err:.4f}%")
+                    else:
+                        print(f"{types[i]}: {ans[i]:.10f}, разбиений {m[i]}")
+            else:  # Трапеции или Симпсон
+                print(f"Результат: {ans:.10f}")
+                print(f"Число разбиений: {m}")
+                if truly is not None and abs(truly) > 1e-5:
+                    rel_err = abs((ans - truly) / truly) * 100
+                    print(f"Относительная погрешность: {rel_err:.4f}%")
+            if truly is not None:
+                print(f"Правильный ответ: {truly:.10f}")
     else:
-        print(ms[mn] + " дал ответ:", ans)
-        print("Число разбиений:", m)
-        if(truly!=None ):
-            print(f"Правильный ответ: {truly:.4f}")
-        if(truly!=None and abs(truly)>10**-5):
-            print(f"Относительная погрешность: {abs((ans - truly) / truly) * 100:.4f}%")
-
-    print()
+        result = solve(fn, mn, a, b, n, eps)
+        if len(result) == 3:
+            print(result[2])
+            print()
+            continue
+        ans, m = result
+        if Fs[fn] is not None:
+            truly = Fs[fn](b) - Fs[fn](a)
+        else:
+            truly = None
+        print()
+        if mn == 0:
+            print(ms[mn] + " дал ответ:")
+            types = ["Левые", "Средние", "Правые"]
+            for i in range(3):
+                if truly is not None and abs(truly) > 1e-5:
+                    rel_err = abs((ans[i] - truly) / truly) * 100
+                    print(f"{types[i]}: {ans[i]:.10f}, разбиений {m[i]}, "
+                          f"погрешность: {rel_err:.4f}%")
+                else:
+                    print(f"{types[i]}: {ans[i]:.10f}, разбиений {m[i]}")
+        else:
+            print(ms[mn] + " дал ответ:", f"{ans:.10f}")
+            print("Число разбиений:", m)
+        if truly is not None:
+            print(f"Правильный ответ: {truly:.10f}")
+            if abs(truly) > 1e-5 and mn != 0:
+                rel_err = abs((ans - truly) / truly) * 100
+                print(f"Относительная погрешность: {rel_err:.4f}%")
