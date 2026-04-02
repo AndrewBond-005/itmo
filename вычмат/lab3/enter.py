@@ -1,17 +1,18 @@
+from funcs import *
 def enter():
     print("Данные вводятся в таком порядке: номер функции, номер метода, интервал, точность")
-    print("Введите номер функции - целое число от 1 до 7")
+    print(f"Введите номер функции - целое число от 1 до {len(fs)}")
     while (True):
         print("Номер функции: ", end=" ")
         inp = input()
         if (inp == "exit"):
-            return "Выход"
+            return None
         try:
             n = float(inp.strip().replace(',', '.'))
-            if (n <= 7 and n > 0) and n.is_integer():
+            if (n <= len(fs) and n > 0) and n.is_integer():
                 fn = int(n)
                 break
-            print("Номер функции это число от 1 до 7")
+            print(f"Номер функции это число от 1 до {len(fs)}")
         except ValueError:
             print("Номер должен быть целым числом")
 
@@ -20,7 +21,7 @@ def enter():
         print("Номер метода: ", end=" ")
         inp = input()
         if (inp == "exit"):
-            return "Выход"
+            return None
         try:
             n = float(inp.strip().replace(',', '.'))
             if (n <= 3 and n > 0) and n.is_integer():
@@ -35,7 +36,7 @@ def enter():
     while True:
         inp = input()
         if (inp == "exit"):
-            return "Выход"
+            return None
         try:
             v = list(map(float, inp.replace(',', '.').split()))
             if(len(v)==2):
@@ -50,7 +51,7 @@ def enter():
     while True:
         inp = input()
         if (inp == "exit"):
-            return "Выход"
+            return None
         try:
             eps = float(inp.strip().replace(',', '.'))
             if eps > 0:

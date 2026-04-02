@@ -18,17 +18,21 @@ def rounge(m, f, a, b, n, h, k, eps):
             return [I1, n]
         else:
             I0 = I1
-        if(n>5*10**5):
-            return [f"Что-то пошло не так, видимо функция имеет непредвиденный разрыв второго рода на отрезке"
-                    f"лучший результат которого удалось добиться это {I1}",n]
+        if(n>11*10**5):
+            return [None, n,f"Что-то пошло не так, либо метод слишком медленно сходится, "
+                            f"либо функция имеет непредвиденный разрыв второго рода на отрезке. "
+                    f"лучший результат которого удалось добиться это {I1}"]
 def govnokod(mn, f, a, b, n, k, eps):
     ms = [rect, trap, simps]
     if (mn == 0):
         ans=[[],[]]
         for i in range(0, 3):
-            res,m = rounge(ms[mn], f, a, b, n, i / 2, k, eps)
-            ans[0].append(res)
-            ans[1].append(m)
+            res= rounge(ms[mn], f, a, b, n, i / 2, 1+i%2, eps)
+            if isinstance(res, list) and len(res) == 2:
+                ans[0].append(res[0])
+                ans[1].append(res[1])
+            else:
+                return res
         return ans
     else:
         return rounge(ms[mn], f, a, b, n, 0, k, eps)
@@ -47,7 +51,7 @@ def solve(fn, mn, a, b, n, eps):
         g = gap(f, a, b)
         if g is not None:
             print("Обнаржуена точка разрыва в ", g)
-            ep=10**-5
+            ep=10**-4
             if (abs(g - a) <= ep):
                 return [None, None, "Функция терпит бесконечный разрыв в точке а, интеграл невычислим"]
             if (abs(g - b) <= ep):
@@ -57,7 +61,7 @@ def solve(fn, mn, a, b, n, eps):
                 b1 = min(b, g + (g - a))
                 fa=abs(f(a1))
                 fb=abs(f(b1))
-                diff = fa-fb / max(fa, fb)
+                diff = (fa-fb) / max(fa, fb)
                 lg=abs(np.log10(fa))
                 if diff < max(0.1,0.1 *lg):
                     if(a==a1):
@@ -65,7 +69,7 @@ def solve(fn, mn, a, b, n, eps):
                     else:
                         return govnokod(mn, f, a, a1, n, k, eps)
                 else:
-                    return [None, None, "Условие симметрии около точки разрыва не выполнено"]
+                    return [None, None, f"Условие симметрии около точки разрыва не выполнено (разница {diff} > {max(0.1,0.1 *lg)}"]
         else:
             return govnokod(mn, f, a, b, n, k, eps)
     else:

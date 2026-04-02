@@ -43,15 +43,20 @@ def F4(x, constant=0):
         log_term = x ** 2 * math.log(abs(x))
 
     return (2 * log_term / 5 + math.cos(4 * x) / 4 - x ** 2 / 5 + constant)+x
+
 def F5(x, constant=0):
     return 2* math.log(abs(x - 1)) - math.cos(x - 1)
+
 def F6(x, constant=0):
     return  math.log(abs(x - 1)) * (x - 1) - (x ** 2) / 2
-def F7(x, constant=0):
-    return 0
 
-Fs = [F1,F2,F3,F4,F5,F6,F7]
 
+Fs = [F1,F2,F3,F4,F5,F6]
+
+if(len(fs)>len(Fs)):
+    k=len(fs)-len(Fs)
+    for i in range(1,k+1):
+        Fs.append(None)
 
 
 ms=["Метод прямоуголников", "Метод трапеций","Метод Симпсона"]

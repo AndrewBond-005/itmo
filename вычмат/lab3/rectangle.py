@@ -8,6 +8,6 @@ def rect(f,a,b,n,k):
         x.append(i)
         i+=h
     ans=0
-    for p in x:
-        ans+=f(p)*h
+    for i in range(len(x)):
+        ans += f(x[i]) * h
     return ans
