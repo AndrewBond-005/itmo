@@ -1,5 +1,4 @@
 import math
-
 def sx(lst):
     return sum(lst)
 
