@@ -1,12 +1,12 @@
+import math
 from input import *
-from out import *
+from funcs import *
 from aprox import *
 def main():
+    print("\n" + "=" * 60)
+    print("LAB WORK #4 - FUNCTION APPROXIMATION")
+    print("=" * 60)
     while True:
-        print("\n" + "="*50)
-        print("LAB WORK #4 - FUNCTION APPROXIMATION")
-        print("="*50)
-
         print("\n1 - Input from console")
         print("2 - Load from file")
         print("0 - Exit")
@@ -31,111 +31,189 @@ def main():
 
         print("\nInput data:")
         print(f"{'#':<4} {'x':<10} {'y':<10}")
-        print("-"*25)
+        print("-" * 25)
         for i in range(n):
-            print(f"{i+1:<4} {x[i]:<10.3f} {y[i]:<10.3f}")
+            print(f"{i + 1:<4} {x[i]:<10.3f} {y[i]:<10.3f}")
 
-        print("\nComputing approximations...")
+        print("\n" + "=" * 90)
+        print(
+            f"{'Function':<15} {'Equation':<45} {'S':<10} {'δ':<10} {'R²':<10} {'r':<8}"
+        )
+        print("=" * 90)
 
         results = {}
 
-        # Linear (считаем S и r отдельно)
+        # Linear
         try:
             coeffs = linear_approx(x, y, n)
-            if coeffs:
-                a0, a1 = coeffs
-                phi_vals = compute_phi(x, [a0, a1], 'poly')
-                S = sum_of_squares(y, phi_vals)
-                r = correlation_coefficient(x, y)
-                results["Linear"] = (a0, a1, S, r)
-                print("  Linear - OK")
-            else:
-                print("  Linear - FAILED")
+            a0, a1 = coeffs
+            phi_vals = compute_phi(x, [a0, a1], 'poly')
+            S = sum_of_squares(y, phi_vals)
+            delta = math.sqrt(S / n)
+            r2 = determination_coefficient(y, phi_vals)
+            r = correlation_coefficient(x, y)
+            results["Linear"] = (a0, a1, S, delta, r2, r, phi_vals, 'poly', [a0, a1])
+            eq = f"{a0:.3f} + {a1:.3f}·x"
+            print(f"{'Linear':<15} {eq:<45} {S:<10.3f} {delta:<10.3f} {r2:<10.3f} {r:<8.3f}")
         except Exception as e:
-            print(f"  Linear - ERROR: {e}")
+            print(f"{'Linear':<15} {'ERROR':<45} {str(e):<10}")
 
-        # Quadratic (считаем S отдельно)
+        # Quadratic
         try:
-            coeffs = polinom_approx(x, y, n,2+1)
-            if coeffs:
-                a0, a1, a2 = coeffs
-                phi_vals = compute_phi(x, [a0, a1, a2], 'poly')
-                S = sum_of_squares(y, phi_vals)
-                results["Quadratic"] = (a0, a1, a2, S)
-                print("  Quadratic - OK")
-            else:
-                print("  Quadratic - FAILED")
+            coeffs = polinom_approx(x, y, n, 2 + 1)
+            a0, a1, a2 = coeffs
+            phi_vals = compute_phi(x, [a0, a1, a2], 'poly')
+            S = sum_of_squares(y, phi_vals)
+            delta = math.sqrt(S / n)
+            r2 = determination_coefficient(y, phi_vals)
+            results["Quadratic"] = (a0, a1, a2, S, delta, r2, phi_vals, 'poly', [a0, a1, a2])
+            eq = f"{a0:.3f} + {a1:.3f}·x + {a2:.3f}·x²"
+            print(f"{'Quadratic':<15} {eq:<45} {S:<10.3f} {delta:<10.3f} {r2:<10.3f} {'—':<8}")
         except Exception as e:
-            print(f"  Quadratic - ERROR: {e}")
+            print(f"{'Quadratic':<15} {'ERROR':<45} {str(e):<10}")
 
-        # Cubic (считаем S отдельно)
+        # Cubic
         try:
-            coeffs = polinom_approx(x, y, n,3+1)
-            if coeffs:
-                a0, a1, a2, a3 = coeffs
-                phi_vals = compute_phi(x, [a0, a1, a2, a3], 'poly')
-                S = sum_of_squares(y, phi_vals)
-                results["Cubic"] = (a0, a1, a2, a3, S)
-                print("  Cubic - OK")
-            else:
-                print("  Cubic - FAILED")
+            coeffs = polinom_approx(x, y, n, 3 + 1)
+            a0, a1, a2, a3 = coeffs
+            phi_vals = compute_phi(x, [a0, a1, a2, a3], 'poly')
+            S = sum_of_squares(y, phi_vals)
+            delta = math.sqrt(S / n)
+            r2 = determination_coefficient(y, phi_vals)
+            results["Cubic"] = (a0, a1, a2, a3, S, delta, r2, phi_vals, 'poly', [a0, a1, a2, a3])
+            eq = f"{a0:.3f} + {a1:.3f}·x + {a2:.3f}·x² + {a3:.3f}·x³"
+            print(f"{'Cubic':<15} {eq:<45} {S:<10.3f} {delta:<10.3f} {r2:<10.3f} {'—':<8}")
         except Exception as e:
-            print(f"  Cubic - ERROR: {e}")
+            print(f"{'Cubic':<15} {'ERROR':<45} {str(e):<10}")
 
-        # Exponential (считаем S отдельно)
+        # Exponential
         try:
             coeffs = exponential_approx(x, y, n)
-            if coeffs:
-                a, b = coeffs
-                phi_vals = compute_phi(x, None, 'exp', a=a, b=b)
-                S = sum_of_squares(y, phi_vals)
-                results["Exponential"] = (a, b, S)
-                print("  Exponential - OK")
-            else:
-                print("  Exponential - FAILED")
+            a, b = coeffs
+            phi_vals = compute_phi(x, None, 'exp', a=a, b=b)
+            S = sum_of_squares(y, phi_vals)
+            delta = math.sqrt(S / n)
+            r2 = determination_coefficient(y, phi_vals)
+            results["Exponential"] = (a, b, S, delta, r2, phi_vals, 'exp', None)
+            eq = f"{a:.3f}·e^({b:.3f}·x)"
+            print(f"{'Exponential':<15} {eq:<45} {S:<10.3f} {delta:<10.3f} {r2:<10.3f} {'—':<8}")
         except Exception as e:
-            print(f"  Exponential - ERROR: {e}")
+            print(f"{'Exponential':<15} {'ERROR':<45} {str(e):<10}")
 
-        # Logarithmic (считаем S отдельно)
+        # Logarithmic
         try:
             coeffs = logarithmic_approx(x, y, n)
-            if coeffs:
-                a, b = coeffs
-                phi_vals = compute_phi(x, None, 'log', a=a, b=b)
-                S = sum_of_squares(y, phi_vals)
-                results["Logarithmic"] = (a, b, S)
-                print("  Logarithmic - OK")
-            else:
-                print("  Logarithmic - FAILED")
+            a, b = coeffs
+            phi_vals = compute_phi(x, None, 'log', a=a, b=b)
+            S = sum_of_squares(y, phi_vals)
+            delta = math.sqrt(S / n)
+            r2 = determination_coefficient(y, phi_vals)
+            results["Logarithmic"] = (a, b, S, delta, r2, phi_vals, 'log', None)
+            eq = f"{a:.3f}·ln(x) + {b:.3f}"
+            print(f"{'Logarithmic':<15} {eq:<45} {S:<10.3f} {delta:<10.3f} {r2:<10.3f} {'—':<8}")
         except Exception as e:
-            print(f"  Logarithmic - ERROR: {e}")
+            print(f"{'Logarithmic':<15} {'ERROR':<45} {str(e):<10}")
 
-        # Power (считаем S отдельно)
+        # Power
         try:
             coeffs = power_approx(x, y, n)
-            if coeffs:
-                a, b = coeffs
-                phi_vals = compute_phi(x, None, 'power', a=a, b=b)
-                S = sum_of_squares(y, phi_vals)
-                results["Power"] = (a, b, S)
-                print("  Power - OK")
-            else:
-                print("  Power - FAILED")
+            a, b = coeffs
+            phi_vals = compute_phi(x, None, 'power', a=a, b=b)
+            S = sum_of_squares(y, phi_vals)
+            delta = math.sqrt(S / n)
+            r2 = determination_coefficient(y, phi_vals)
+            results["Power"] = (a, b, S, delta, r2, phi_vals, 'power', None)
+            eq = f"{a:.3f}·x^{b:.3f}"
+            print(f"{'Power':<15} {eq:<45} {S:<10.3f} {delta:<10.3f} {r2:<10.3f} {'—':<8}")
         except Exception as e:
-            print(f"  Power - ERROR: {e}")
+            print(f"{'Power':<15} {'ERROR':<45} {str(e):<10}")
 
         if len(results) == 0:
             print("\nNo approximations computed successfully!")
+            input("\nPress Enter to continue...")
             continue
 
-        print_results(x, y, n, results)
+        # Находим лучшую по минимальному δ
+        best_name = None
+        best_delta = float('inf')
+        for name, data in results.items():
+            delta = data[3] if len(data) > 3 else data[2]
+            if delta < best_delta:
+                best_delta = delta
+                best_name = name
 
-        show = input("\nShow detailed table? (y/n): ")
-        if show.lower() == 'y':
-            print_detailed_table(x, y, results)
+        #если коэффициент Пирсона > 0.95, то побеждает линейная
+        if "Linear" in results:
+            pearson_r = results["Linear"][5]  # r хранится на позиции 5
+            if pearson_r > 0.95:
+                print(f"   Pearson's r = {pearson_r:.4f} > 0.95")
+                print("   Data is basically a straight line!")
+                print("   Forcing Linear as the best approximation")
+                best_name = "Linear"
+                best_delta = results["Linear"][3]
 
-        print("\n" + "-"*50)
-        input("Press Enter to continue...")
+        print("\n" + "=" * 90)
+        print("BEST APPROXIMATION")
+        print("=" * 90)
+
+        if best_name:
+            data = results[best_name]
+            if best_name == "Linear":
+                a0, a1, S, delta, r2, r, _, _, _ = data
+                print(f"Function: {best_name}")
+                print(f"Equation: φ(x) = {a0:.3f} + {a1:.3f}·x")
+                print(f"S = {S:.3f}, δ = {delta:.3f}, R² = {r2:.3f}, r (Pearson) = {r:.3f}")
+            elif best_name == "Quadratic":
+                a0, a1, a2, S, delta, r2, _, _, _ = data
+                print(f"Function: {best_name}")
+                print(f"Equation: φ(x) = {a0:.3f} + {a1:.3f}·x + {a2:.3f}·x²")
+                print(f"S = {S:.3f}, δ = {delta:.3f}, R² = {r2:.3f}")
+            elif best_name == "Cubic":
+                a0, a1, a2, a3, S, delta, r2, _, _, _ = data
+                print(f"Function: {best_name}")
+                print(f"Equation: φ(x) = {a0:.3f} + {a1:.3f}·x + {a2:.3f}·x² + {a3:.3f}·x³")
+                print(f"S = {S:.3f}, δ = {delta:.3f}, R² = {r2:.3f}")
+            elif best_name == "Exponential":
+                a, b, S, delta, r2, _, _, _ = data
+                print(f"Function: {best_name}")
+                print(f"Equation: φ(x) = {a:.3f}·e^({b:.3f}·x)")
+                print(f"S = {S:.3f}, δ = {delta:.3f}, R² = {r2:.3f}")
+            elif best_name == "Logarithmic":
+                a, b, S, delta, r2, _, _, _ = data
+                print(f"Function: {best_name}")
+                print(f"Equation: φ(x) = {a:.3f}·ln(x) + {b:.3f}")
+                print(f"S = {S:.3f}, δ = {delta:.3f}, R² = {r2:.3f}")
+            elif best_name == "Power":
+                a, b, S, delta, r2, _, _, _ = data
+                print(f"Function: {best_name}")
+                print(f"Equation: φ(x) = {a:.3f}·x^{b:.3f}")
+                print(f"S = {S:.3f}, δ = {delta:.3f}, R² = {r2:.3f}")
+
+        # Сообщение о качестве R² (исправленное)
+        if best_name:
+            r2 = results[best_name][4] if len(results[best_name]) > 4 else results[best_name][2]
+            if r2 >= 0.95:
+                print("High accuracy (R² ≥ 0.95) - model describes phenomenon well")
+            elif r2 >= 0.75:
+                print("Satisfactory approximation (0.75 ≤ R² < 0.95)")
+            elif r2 >= 0.5:
+                print("Weak approximation (0.5 ≤ R² < 0.75)")
+            else:
+                print("Insufficient accuracy (R² < 0.5) - model needs improvement")
+
+         # Вывод таблицы с x, y, φ(x), ε для луч1юшей функции
+            print()
+            print(f"ПОДРОБНАЯ ТАБЛИЦА ДЛЯ {best_name} АППРОКСИМАЦИИ")
+            print("=" * 90)
+            print(f"{'#':<4} {'x':<12} {'y (эксп)':<14} {'φ(x)':<14} {'ε = φ(x)-y':<14}")
+            print("-" * 60)
+
+            for i in range(n):
+                eps = phi_vals[i] - y[i]
+                print(f"{i+1:<4} {x[i]:<12.3f} {y[i]:<14.3f} {phi_vals[i]:<14.3f} {eps:<14.3f}")
+        # Автоматический переход на следующую итерацию (без лишних вопросов)
+        # Если хочешь паузу — раскомментируй строку ниже:
+        # input("\nPress Enter to continue...")
 
 if __name__ == "__main__":
     main()

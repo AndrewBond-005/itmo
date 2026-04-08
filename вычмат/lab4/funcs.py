@@ -1,5 +1,5 @@
-from aprox import *
 import math
+
 def sx(lst):
     return sum(lst)
 
@@ -40,6 +40,20 @@ def compute_phi(x, coeffs, func_type, a=None, b=None):
 def sum_of_squares(y, phi_vals):
     return sum((phi_vals[i] - y[i]) ** 2 for i in range(len(y)))
 
+def std_deviation(y, phi_vals):
+    n = len(y)
+    S = sum_of_squares(y, phi_vals)
+    return math.sqrt(S / n)
+
+def determination_coefficient(y, phi_vals):
+    n = len(y)
+    y_mean = sx(y) / n
+    ss_res = sum_of_squares(y, phi_vals)
+    ss_tot = sum((y[i] - y_mean) ** 2 for i in range(n))
+    if ss_tot == 0:
+        return 1.0
+    return 1 - ss_res / ss_tot
+
 def correlation_coefficient(x, y):
     n = len(x)
     sum_x = sx(x)
@@ -53,16 +67,15 @@ def correlation_coefficient(x, y):
         return 0.0
     return numerator / denominator
 
-
 def det(m):
-  d=0
-  n=len(m)
-  if n==2:
-    return m[0][0]*m[1][1]-m[0][1]*m[1][0]
-  for i in range(0,n):
-    a=[]
-    for j in range(0,n):
-      if i!=j:
-        a.append(m[j][1:])
-    d+=m[i][0]*(-1)**(i) *det(a)
-  return d
+    d = 0
+    n = len(m)
+    if n == 2:
+        return m[0][0] * m[1][1] - m[0][1] * m[1][0]
+    for i in range(0, n):
+        a = []
+        for j in range(0, n):
+            if i != j:
+                a.append(m[j][1:])
+        d += m[i][0] * (-1) ** i * det(a)
+    return d
