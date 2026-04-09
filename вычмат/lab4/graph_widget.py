@@ -112,6 +112,8 @@ class GraphWidget(tk.Frame):
         # ПКМ (button 3) - удалить последнюю точку
         elif event.button == 3:
             self.table.remove_last_point()
+        elif event.button == 2:
+            self._remove_nearest_point(x, y)
 
     def plot_points_only(self, x_values, y_values):
         """Рисует только точки, очищая предыдущий график."""
@@ -195,3 +197,37 @@ class GraphWidget(tk.Frame):
         self.axes.set_ylim(FIXED_Y_MIN, FIXED_Y_MAX)
         self.axes.set_aspect('equal', adjustable='box')
         self.canvas.draw()
+
+    def _remove_nearest_point(self, x, y):
+        """Удаляет точку, ближайшую к координатам (x, y)."""
+        data = self.table.get_valid_data()
+        if not data:
+            return
+
+        # Находим ближайшую точку
+        min_dist = float('inf')
+        nearest_row = None
+
+        for item in data:
+            dist = ((item['x'] - x) ** 2 + (item['y'] - y) ** 2) ** 0.5
+            if dist < min_dist:
+                min_dist = dist
+                nearest_row = item['row']
+
+        if nearest_row is not None:
+            # Удаляем данные из найденной строки
+            x_widget = self.table.grid_slaves(row=nearest_row, column=1)[0]
+            y_widget = self.table.grid_slaves(row=nearest_row, column=2)[0]
+            phi_widget = self.table.grid_slaves(row=nearest_row, column=3)[0]
+            eps_widget = self.table.grid_slaves(row=nearest_row, column=4)[0]
+
+            if isinstance(x_widget, tk.Entry):
+                x_widget.delete(0, tk.END)
+            if isinstance(y_widget, tk.Entry):
+                y_widget.delete(0, tk.END)
+            if isinstance(phi_widget, tk.Label):
+                phi_widget.configure(text="")
+            if isinstance(eps_widget, tk.Label):
+                eps_widget.configure(text="")
+
+            self.table._on_data_changed()
