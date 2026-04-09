@@ -3,8 +3,8 @@ DATA_CHANGED_EVENT = "<<DataChanged>>"
 DEFAULT_ROWS = 12
 COLUMNS = ["№", "x", "y", "φ(x)", "ε", ""]
 COLUMN_WIDTHS = [50, 100, 100, 100, 100, 60]
-LABEL_WIDTH = 8
-ENTRY_WIDTH = 12
+LABEL_WIDTH = 15
+ENTRY_WIDTH = 15
 
 import tkinter as tk
 from tkinter import ttk
@@ -19,21 +19,39 @@ class DataTable(ttk.Frame):
         self.rows_count = rows
         self.entries = []
         self._create_table()
+        self.clear_all_callback = None  # Callback для очистки результатов
+
+    def set_clear_all_callback(self, callback):
+        """Устанавливает callback для очистки результатов."""
+        self.clear_all_callback = callback
 
     def _create_table(self):
         """Создание таблицы через Frame + Entry."""
         # Заголовки
         headers = COLUMNS
         for col, text in enumerate(headers):
-            label = tk.Label(
-                self,
-                text=text,
-                relief="solid",
-                borderwidth=1,
-                bg="lightgray",
-                font=('Arial', 10, 'bold')
-            )
-            label.grid(row=0, column=col, sticky="nsew")
+            # Для последней колонки создаём кнопку удаления всей таблицы
+            if col == 5:  # Колонка с кнопками удаления
+                clear_all_btn = tk.Button(
+                    self,
+                    text="🗑",
+                    fg="red",
+                    relief="solid",
+                    borderwidth=1,
+                    bg="white",
+                    command=self._clear_all_rows
+                )
+                clear_all_btn.grid(row=0, column=col, sticky="nsew")
+            else:
+                label = tk.Label(
+                    self,
+                    text=text,
+                    relief="solid",
+                    borderwidth=1,
+                    bg="lightgray",
+                    font=('Arial', 10, 'bold')
+                )
+                label.grid(row=0, column=col, sticky="nsew")
             self.grid_columnconfigure(col, weight=0 if col in [0, 5] else 1)
 
         # Строки с данными
@@ -46,7 +64,7 @@ class DataTable(ttk.Frame):
                 borderwidth=1,
                 bg="white",
                 width=LABEL_WIDTH,
-                height = 1
+                height=1
             )
             num_label.grid(row=row, column=0, sticky="nsew")
 
@@ -57,7 +75,7 @@ class DataTable(ttk.Frame):
                 borderwidth=1,
                 justify='center',
                 bg="white",
-                width = 12
+                width=12
             )
             x_entry.grid(row=row, column=1, sticky="nsew", padx=0, pady=0)
             x_entry.bind("<FocusOut>", lambda e, r=row, c=1: self._validate_entry(r, c))
@@ -75,7 +93,7 @@ class DataTable(ttk.Frame):
             y_entry.bind("<FocusOut>", lambda e, r=row, c=2: self._validate_entry(r, c))
             y_entry.bind("<Return>", self._on_enter_pressed)
 
-            # Label для φ(x) (только для чтения)
+            # Label для φ(x)
             phi_label = tk.Label(
                 self,
                 text="",
@@ -85,7 +103,7 @@ class DataTable(ttk.Frame):
             )
             phi_label.grid(row=row, column=3, sticky="nsew")
 
-            # Label для ε (только для чтения)
+            # Label для ε
             eps_label = tk.Label(
                 self,
                 text="",
@@ -95,7 +113,7 @@ class DataTable(ttk.Frame):
             )
             eps_label.grid(row=row, column=4, sticky="nsew")
 
-            # Кнопка удаления
+            # Кнопка удаления строки
             del_btn = tk.Button(
                 self,
                 text="🗑",
@@ -120,6 +138,20 @@ class DataTable(ttk.Frame):
 
         for row in range(self.rows_count + 1):
             self.grid_rowconfigure(row, weight=1)
+
+    def _clear_all_rows(self):
+        """Очищает все строки таблицы и вызывает callback для очистки результатов."""
+        for entry in self.entries:
+            entry['x_entry'].delete(0, tk.END)
+            entry['y_entry'].delete(0, tk.END)
+            entry['phi_label'].configure(text="")
+            entry['eps_label'].configure(text="")
+
+        # Вызываем callback для очистки результатов
+        if self.clear_all_callback:
+            self.clear_all_callback()
+
+        self._on_data_changed()
 
     def _on_enter_pressed(self, event):
         """Обработка нажатия Enter - убираем фокус с Entry."""
@@ -148,18 +180,37 @@ class DataTable(ttk.Frame):
             next_x = self.grid_slaves(row=i + 1, column=1)[0].get()
             next_y = self.grid_slaves(row=i + 1, column=2)[0].get()
 
+            # Получаем φ(x) и ε из следующей строки
+            next_phi = self.grid_slaves(row=i + 1, column=3)[0]
+            next_eps = self.grid_slaves(row=i + 1, column=4)[0]
+            phi_val = next_phi.cget("text") if isinstance(next_phi, tk.Label) else ""
+            eps_val = next_eps.cget("text") if isinstance(next_eps, tk.Label) else ""
+
             # Вставляем в текущую
             self.grid_slaves(row=i, column=1)[0].delete(0, tk.END)
             self.grid_slaves(row=i, column=1)[0].insert(0, next_x)
             self.grid_slaves(row=i, column=2)[0].delete(0, tk.END)
             self.grid_slaves(row=i, column=2)[0].insert(0, next_y)
 
+            # Сдвигаем φ(x) и ε
+            curr_phi = self.grid_slaves(row=i, column=3)[0]
+            curr_eps = self.grid_slaves(row=i, column=4)[0]
+            if isinstance(curr_phi, tk.Label):
+                curr_phi.configure(text=phi_val)
+            if isinstance(curr_eps, tk.Label):
+                curr_eps.configure(text=eps_val)
+
         # Очищаем последнюю строку
         self.grid_slaves(row=self.rows_count, column=1)[0].delete(0, tk.END)
         self.grid_slaves(row=self.rows_count, column=2)[0].delete(0, tk.END)
 
-        # Очищаем φ(x) и ε
-        self.clear_phi_epsilon()
+        # Очищаем φ(x) и ε в последней строке
+        last_phi = self.grid_slaves(row=self.rows_count, column=3)[0]
+        last_eps = self.grid_slaves(row=self.rows_count, column=4)[0]
+        if isinstance(last_phi, tk.Label):
+            last_phi.configure(text="")
+        if isinstance(last_eps, tk.Label):
+            last_eps.configure(text="")
 
         self._on_data_changed()
 
@@ -344,6 +395,15 @@ class DataTable(ttk.Frame):
             if x_val is not None and y_val is not None:
                 x_widget.delete(0, tk.END)
                 y_widget.delete(0, tk.END)
+
+                # Очищаем φ(x) и ε для этой строки
+                phi_widget = self.grid_slaves(row=row, column=3)[0]
+                eps_widget = self.grid_slaves(row=row, column=4)[0]
+                if isinstance(phi_widget, tk.Label):
+                    phi_widget.configure(text="")
+                if isinstance(eps_widget, tk.Label):
+                    eps_widget.configure(text="")
+
                 self.update_idletasks()
                 self._on_data_changed()
                 return True

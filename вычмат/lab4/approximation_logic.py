@@ -203,8 +203,6 @@ def format_results_text(best):
     lines.append(f"Коэффициент детерминации (R²): {format_number(best['R2'], 6)}")
     if best['name'] == 'Линейная':
         lines.append(f"Коэффициент корреляции (r): {format_number(best['r'], 6)}")
-    lines.append("")
-
     # Оценка качества
     if best['R2'] > 0.95:
         quality = "Отличная"

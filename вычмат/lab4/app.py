@@ -4,6 +4,8 @@ RESULTS_TEXT_HEIGHT = 8
 RESULTS_TEXT_WIDTH = 40
 LEFT_PANEL_WIDTH_RATIO = 0.33
 RIGHT_PANEL_WIDTH_RATIO = 0.67
+MIN_POINTS = 8
+MAX_POINTS = 12
 
 import tkinter as tk
 from tkinter import ttk
@@ -15,8 +17,7 @@ from buttons import (
     setup_auto_update_button,
     setup_point_mode_button,
     setup_import_export_buttons,
-    setup_mode_toggle,
-    setup_help_exit
+    setup_help_exit  # Импортируем твою функцию
 )
 
 
@@ -46,32 +47,31 @@ class App:
         self.graph = GraphWidget(self.right_frame)
         self.graph.pack(fill=tk.BOTH, expand=True)
 
-        # Предупреждение (красный текст)
+        # Заголовок
+        title_label = tk.Label(
+            self.left_frame,
+            text="Аппроксимация функции",
+            font=('Arial', 16, 'bold'),
+        )
+        title_label.pack()
+
+        # Предупреждение
         self.warning_label = tk.Label(self.left_frame, text="", fg="red", font=('Arial', 9))
         self.warning_label.pack(pady=2)
-
-        # Режим переключения (над таблицей справа)
-        mode_frame = tk.Frame(self.left_frame)
-        mode_frame.pack(fill=tk.X, padx=5, pady=5)
 
         def show_warning(msg):
             self.warning_label.configure(text=msg)
             self.root.after(3000, lambda: self.warning_label.configure(text=""))
 
-        self.mode_toggle = setup_mode_toggle(mode_frame, None, show_warning)  # table будет позже
-
         # Таблица ввода данных
         self.table = DataTable(self.left_frame, rows=12)
         self.table.pack(fill=tk.BOTH, expand=True)
 
-        # Обновляем ссылку на таблицу в mode_toggle
-        self.mode_toggle.table = self.table
-
-        # Кнопки (первый ряд)
+        # Кнопки первого ряда
         buttons_frame1 = tk.Frame(self.left_frame)
         buttons_frame1.pack(pady=5)
 
-        # Текстовая область и таблица результатов (создаём заранее)
+        # Текстовая область
         text_frame = tk.Frame(self.left_frame)
         text_frame.pack(fill=tk.X, padx=5, pady=(5, 0))
 
@@ -94,14 +94,14 @@ class App:
 
         # Callback для вычисления
         def do_calc():
+            data = self.table.get_valid_data()
+            if len(data) < MIN_POINTS:
+                show_warning(f"⚠ Недостаточно точек (нужно ≥{MIN_POINTS})")
+                return
             from buttons.calc_button import on_calc_click
             on_calc_click(self.calc_button, self.table, self.graph, self.results_text, self.results_table)
 
-        # Кнопки первого ряда (горизонтально)
-        buttons_frame1 = tk.Frame(self.left_frame)
-        buttons_frame1.pack(pady=5)
-
-        # Кнопка "Вычислить"
+        # Кнопки первого ряда
         self.calc_button = setup_calc_button(
             buttons_frame1,
             self.table,
@@ -111,7 +111,6 @@ class App:
         )
         self.calc_button.pack(side=tk.LEFT, padx=5)
 
-        # Кнопка режима добавления точек
         self.point_mode_btn = setup_point_mode_button(
             buttons_frame1,
             self.graph,
@@ -119,7 +118,6 @@ class App:
         )
         self.point_mode_btn.btn.pack(side=tk.LEFT, padx=5)
 
-        # Кнопка автообновления
         self.auto_update_btn = setup_auto_update_button(
             buttons_frame1,
             self.table,
@@ -130,8 +128,7 @@ class App:
         )
         self.auto_update_btn.btn.pack(side=tk.LEFT, padx=5)
 
-        # Кнопки второго ряда
-        # Кнопки второго ряда (горизонтально)
+        # Кнопки второго ряда (Импорт/Экспорт + Помощь/Выход)
         buttons_frame2 = tk.Frame(self.left_frame)
         buttons_frame2.pack(pady=5)
 
@@ -141,12 +138,12 @@ class App:
             self.table,
             self.results_text,
             self.results_table,
-            self.mode_toggle.get_max_points,
+            lambda: MAX_POINTS,
             show_warning
         )
         import_export_frame.pack(side=tk.LEFT, padx=5)
 
-        # Помощь/Выход
+        # Помощь/Выход (твоя функция)
         help_exit_frame = setup_help_exit(buttons_frame2, self.root)
         help_exit_frame.pack(side=tk.LEFT, padx=5)
 
@@ -156,6 +153,13 @@ class App:
         self.root.after(100, self._force_update_points)
         self.root.update_idletasks()
         self.paned.sash_place(0, left_width, 0)
+
+        def clear_all_results():
+            self.results_text.delete(1.0, tk.END)
+            self.results_table.clear()
+            self.graph.clear()
+
+        self.table.set_clear_all_callback(clear_all_results)
 
     def _force_update_points(self):
         data = self.table.get_valid_data()
@@ -170,22 +174,15 @@ class App:
 
         self.graph.plot_points_only(x_vals, y_vals)
 
-        # Проверка на количество точек
-        min_points = self.mode_toggle.get_min_points()
-        max_points = self.mode_toggle.get_max_points()
-
-        if len(data) < min_points:
-            self.warning_label.configure(text=f"⚠ Недостаточно точек (нужно ≥{min_points})")
-        elif len(data) > max_points:
-            self.warning_label.configure(text=f"⚠ Слишком много точек (максимум {max_points})")
+        if len(data) < MIN_POINTS:
+            self.warning_label.configure(text=f"⚠ Недостаточно точек (нужно ≥{MIN_POINTS})")
+            return
+        elif len(data) > MAX_POINTS:
+            self.warning_label.configure(text=f"⚠ Слишком много точек (максимум {MAX_POINTS})")
         else:
             self.warning_label.configure(text="")
 
         if self.auto_update_btn.is_active():
-            if len(data) >= 4:
+            if len(data) >= MIN_POINTS:
                 from buttons.calc_button import on_calc_click
                 on_calc_click(self.calc_button, self.table, self.graph, self.results_text, self.results_table)
-            else:
-                self.results_text.delete(1.0, tk.END)
-                self.results_table.clear()
-                self.table.clear_phi_epsilon()
