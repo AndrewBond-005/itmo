@@ -10,7 +10,7 @@ MAX_POINTS = 12
 import tkinter as tk
 from tkinter import ttk
 from table_widget import DataTable, DATA_CHANGED_EVENT
-from graph_widget import GraphWidget
+from graph_widget import GraphWidget, COLOR_LINE_SELECTED, COLOR_LINE_BEST, LINE_WIDTH_BEST
 from results_table import ResultsTable
 from buttons import (
     setup_calc_button,
@@ -92,6 +92,12 @@ class App:
         self.results_table = ResultsTable(self.left_frame)
         self.results_table.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
+
+        def update_graph_with_selections():
+            self._redraw_all_functions()
+
+        self.results_table.set_graph_callback(update_graph_with_selections)
+
         # Callback для вычисления
         def do_calc():
             data = self.table.get_valid_data()
@@ -159,7 +165,79 @@ class App:
             self.results_table.clear()
             self.graph.clear()
 
-        self.table.set_clear_all_callback(clear_all_results)
+
+
+        # Устанавливаем callback для отображения выбранной аппроксимации
+        # Устанавливаем callback для отображения выбранной аппроксимации
+
+
+    def _on_table_data_changed(self, event=None):
+        data = self.table.get_valid_data()
+        x_vals = [d['x'] for d in data]
+        y_vals = [d['y'] for d in data]
+
+        if len(data) < MIN_POINTS:
+            self.warning_label.configure(text=f"⚠ Недостаточно точек (нужно ≥{MIN_POINTS})")
+            self.graph.plot_points_only(x_vals, y_vals)
+            return
+        elif len(data) > MAX_POINTS:
+            self.warning_label.configure(text=f"⚠ Слишком много точек (максимум {MAX_POINTS})")
+        else:
+            self.warning_label.configure(text="")
+
+        # ВАЖНО: Всегда перерисовываем все функции при изменении данных
+        if len(data) >= MIN_POINTS:
+            self._redraw_all_functions()  # Вот здесь перерисовка при изменении точек
+        else:
+            self.graph.plot_points_only(x_vals, y_vals)
+
+        if self.auto_update_btn.is_active():
+            if len(data) >= MIN_POINTS:
+                from buttons.calc_button import on_calc_click
+                on_calc_click(self.calc_button, self.table, self.graph, self.results_text, self.results_table)
+    def _redraw_all_functions(self):
+        """Перерисовывает все функции: лучшую и выбранные."""
+        data = self.table.get_valid_data()
+
+        if len(data) < 8:
+            return
+
+        x_values = [d['x'] for d in data]
+        y_values = [d['y'] for d in data]
+
+        from approximation_logic import generate_function_points, find_best_approximation
+
+        # Очищаем график и рисуем точки
+        self.graph.clear()
+        self.graph.plot_points(x_values, y_values)
+
+        # Находим и рисуем лучшую аппроксимацию
+        if self.results_table.approximations_data:
+            best = find_best_approximation(self.results_table.approximations_data)
+            if best:
+                x_range, y_range = generate_function_points(x_values, best)
+                if x_range and y_range:
+                    self.graph.plot_function(x_range, y_range, color="blue", linewidth=3)
+
+        # Рисуем все выбранные аппроксимации
+        selected = self.results_table.get_selected_approximations()
+        best_name = best['name'] if 'best' in locals() and best else None
+        for approx in selected:
+            if approx['name'] != best_name:
+                x_range, y_range = generate_function_points(x_values, approx)
+                if x_range and y_range:
+                    self.graph.plot_function(x_range, y_range, color="orange", linewidth=2)
+    def _force_update_points(self):
+        """Принудительно обновляет точки и функции на графике."""
+        data = self.table.get_valid_data()
+
+        if len(data) >= MIN_POINTS:
+            self._redraw_all_functions()
+        else:
+            x_vals = [d['x'] for d in data]
+            y_vals = [d['y'] for d in data]
+            self.graph.plot_points_only(x_vals, y_vals)
+
 
     def _force_update_points(self):
         data = self.table.get_valid_data()
@@ -169,19 +247,26 @@ class App:
 
     def _on_table_data_changed(self, event=None):
         data = self.table.get_valid_data()
+
         x_vals = [d['x'] for d in data]
         y_vals = [d['y'] for d in data]
 
-        self.graph.plot_points_only(x_vals, y_vals)
-
         if len(data) < MIN_POINTS:
             self.warning_label.configure(text=f"⚠ Недостаточно точек (нужно ≥{MIN_POINTS})")
+            self.graph.plot_points_only(x_vals, y_vals)
             return
         elif len(data) > MAX_POINTS:
             self.warning_label.configure(text=f"⚠ Слишком много точек (максимум {MAX_POINTS})")
         else:
             self.warning_label.configure(text="")
 
+        # ВАЖНО: Сначала перерисовываем график с текущими аппроксимациями
+        if len(data) >= MIN_POINTS:
+            self._redraw_all_functions()
+        else:
+            self.graph.plot_points_only(x_vals, y_vals)
+
+        # Потом запускаем автообновление если нужно
         if self.auto_update_btn.is_active():
             if len(data) >= MIN_POINTS:
                 from buttons.calc_button import on_calc_click

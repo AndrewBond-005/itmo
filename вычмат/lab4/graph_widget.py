@@ -13,7 +13,9 @@ FIXED_Y_MIN = -5
 FIXED_Y_MAX = 15
 FIGURE_SIZE = (6, 5)
 DPI = 100
-
+COLOR_LINE_BEST = "blue"  # Цвет для лучшей аппроксимации
+COLOR_LINE_SELECTED = "orange"  # Цвет для выбранных аппроксимаций
+LINE_WIDTH_BEST = 3  # Лучшая линия толще
 # Константы режима добавления точек
 POINT_ADD_COLOR = "red"
 POINT_ADD_SIZE = 60
@@ -201,12 +203,12 @@ class GraphWidget(tk.Frame):
         self.points_plotted = True
         self.canvas.draw()
 
-    def plot_function(self, x_range, y_values, color=COLOR_LINE):
+    def plot_function(self, x_range, y_values, color=COLOR_LINE_BEST, linewidth=LINE_WIDTH):
         """Рисует линию функции, не меняя границы."""
         if not x_range or not y_values:
             return
 
-        self.axes.plot(x_range, y_values, color=color, linewidth=LINE_WIDTH, zorder=4)
+        self.axes.plot(x_range, y_values, color=color, linewidth=linewidth, zorder=4)
         self.line_plotted = True
         self.canvas.draw()
 

@@ -2,6 +2,8 @@
 import tkinter as tk
 from tkinter import ttk
 
+from results_table import CELL_BG
+
 BUTTON_CALC_COLOR = "#009500"
 BUTTON_CALC_DARKER_COLOR = "#006400"
 BUTTON_CALC_TEXT = "Вычислить"
@@ -45,15 +47,24 @@ def setup_calc_button(parent, table, graph, results_text, results_table):
 
 
 def on_calc_click(btn, table, graph, results_text, results_table):
-    """Обработчик нажатия кнопки "Вычислить"."""
     data = table.get_valid_data()
 
+    # Сохраняем выделение перед очисткой
+    selected_names = set()
+    for idx in results_table.selected_rows:
+        if idx < len(results_table.approximations_data):
+            selected_names.add(results_table.approximations_data[idx]['name'])
+
     results_text.delete(1.0, tk.END)
-    results_table.clear()
+    # НЕ вызываем clear(), чтобы не сбросить selected_rows
+    # Вместо этого просто очищаем текст в ячейках
+    for row in range(results_table.rows_count):
+        for col in range(len(results_table.headers)):
+            results_table.labels[row][col].config(text="", bg=CELL_BG, fg="black")
     table.clear_phi_epsilon()
 
     if len(data) < 8:
-        results_text.insert(tk.END, "Недостаточно точек (нужно ≥4)\n", "error")
+        results_text.insert(tk.END, "Недостаточно точек (нужно ≥8)\n", "error")
         results_text.tag_config("error", foreground="red")
         return
 
@@ -80,7 +91,9 @@ def on_calc_click(btn, table, graph, results_text, results_table):
     phi_values = compute_phi_values(x_values, best)
     epsilon_values = [y_values[i] - phi_values[i] for i in range(len(y_values))]
     table.update_phi_epsilon(phi_values, epsilon_values)
-
+    # Рисуем функцию на графике
     x_range, y_range = generate_function_points(x_values, best)
     if x_range and y_range:
-        graph.plot_function(x_range, y_range)
+        graph.plot_function(x_range, y_range, color="blue", linewidth=3)
+    if results_table.graph_callback:
+        results_table.graph_callback()
