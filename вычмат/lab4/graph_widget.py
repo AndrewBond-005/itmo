@@ -1,4 +1,6 @@
 # Константы графика
+from utils import parse_number, format_number
+
 COLOR_POINTS = "red"
 POINT_SIZE = 50
 COLOR_LINE = "blue"
@@ -24,6 +26,47 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolb
 class GraphWidget(tk.Frame):
     """Виджет для отображения графика matplotlib с панелью навигации."""
 
+    def _on_scroll(self, event):
+        """Обработчик прокрутки колёсика мыши - изменяет Y ближайшей точки."""
+        if not self.point_mode or self.table is None:
+            return
+
+        # Проверяем что курсор в области осей
+        if event.inaxes != self.axes:
+            return
+
+        # Получаем координаты курсора
+        x_cursor, y_cursor = event.xdata, event.ydata
+
+        # Получаем все валидные точки
+        data = self.table.get_valid_data()
+        if not data:
+            return
+
+        # Находим ближайшую точку к курсору
+        min_dist = float('inf')
+        nearest_row = None
+
+        for item in data:
+            dist = ((item['x'] - x_cursor) ** 2 + (item['y'] - y_cursor) ** 2) ** 0.5
+            if dist < min_dist:
+                min_dist = dist
+                nearest_row = item['row']
+
+        if nearest_row is not None:
+            # Определяем направление и величину изменения
+            delta = 0.1 if event.button == 'up' else -0.1
+
+            # Изменяем Y ближайшей точки
+            y_widget = self.table.grid_slaves(row=nearest_row, column=2)[0]
+            if isinstance(y_widget, tk.Entry):
+                current_y = parse_number(y_widget.get())
+                if current_y is not None:
+                    new_y = current_y + delta
+                    y_widget.delete(0, tk.END)
+                    y_widget.insert(0, format_number(new_y, 3))
+                    self.table._on_data_changed()
+
     def __init__(self, parent):
         super().__init__(parent)
         self.points_plotted = False
@@ -31,6 +74,8 @@ class GraphWidget(tk.Frame):
         self.point_mode = False
         self.table = None
         self._create_graph()
+        self.canvas.mpl_connect('scroll_event', self._on_scroll)
+
 
     def _create_graph(self):
         """Создание фигуры, холста и панели навигации matplotlib."""
@@ -114,7 +159,6 @@ class GraphWidget(tk.Frame):
             self.table.remove_last_point()
         elif event.button == 2:
             self._remove_nearest_point(x, y)
-
     def plot_points_only(self, x_values, y_values):
         """Рисует только точки, очищая предыдущий график."""
         # Сохраняем текущие границы перед очисткой
