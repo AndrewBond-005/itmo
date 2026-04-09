@@ -1,11 +1,19 @@
 # Константы автообновления
-BUTTON_AUTO_UPDATE_TEXT = "🔄 Автообновление"
-BUTTON_AUTO_UPDATE_ACTIVE_COLOR = "green"
-BUTTON_AUTO_UPDATE_INACTIVE_COLOR = "gray"
-BUTTON_PADDING = 5
 
 import tkinter as tk
 from tkinter import ttk
+BUTTON_AUTO_UPDATE_TEXT = "🔄 Автообновление"
+BUTTON_AUTO_UPDATE_ACTIVE_COLOR = "#006697"
+BUTTON_AUTO_UPDATE_INACTIVE_COLOR = "#a1a4a1"
+BUTTON_PADDING = 5
+
+# Настройки границы кнопки
+BUTTON_BORDER_WIDTH = 2
+BUTTON_ACTIVE_BORDER_COLOR = "#00ff00"
+BUTTON_INACTIVE_BORDER_COLOR = "#3333FF"
+BUTTON_RELIEF = tk.RIDGE
+
+
 
 
 class AutoUpdateButton:
@@ -28,11 +36,15 @@ class AutoUpdateButton:
             self.parent,
             text=BUTTON_AUTO_UPDATE_TEXT,
             bg=BUTTON_AUTO_UPDATE_INACTIVE_COLOR,
+            fg="black",
             command=self._toggle,
-            relief=tk.RAISED,
-            bd=2,
+            relief=BUTTON_RELIEF,
+            bd=BUTTON_BORDER_WIDTH,
             padx=10,
-            pady=2
+            pady=2,
+            highlightbackground=BUTTON_INACTIVE_BORDER_COLOR,
+            highlightcolor=BUTTON_INACTIVE_BORDER_COLOR,
+            highlightthickness=BUTTON_BORDER_WIDTH
         )
         self.btn.pack(pady=BUTTON_PADDING)
 
@@ -41,26 +53,21 @@ class AutoUpdateButton:
         self.active = not self.active
 
         if self.active:
-            self.btn.configure(bg=BUTTON_AUTO_UPDATE_ACTIVE_COLOR)
-            # Проверяем текущие данные
-            self._check_and_update()
+            self.btn.configure(
+                bg=BUTTON_AUTO_UPDATE_ACTIVE_COLOR,
+                highlightbackground=BUTTON_ACTIVE_BORDER_COLOR,
+                highlightcolor=BUTTON_ACTIVE_BORDER_COLOR
+            )
         else:
-            self.btn.configure(bg=BUTTON_AUTO_UPDATE_INACTIVE_COLOR)
+            self.btn.configure(
+                bg=BUTTON_AUTO_UPDATE_INACTIVE_COLOR,
+                highlightbackground=BUTTON_INACTIVE_BORDER_COLOR,
+                highlightcolor=BUTTON_INACTIVE_BORDER_COLOR
+            )
 
     def is_active(self):
         """Возвращает состояние автообновления."""
         return self.active
-
-    def _check_and_update(self):
-        """Проверяет количество точек и вызывает пересчёт."""
-        if self.active:
-            if self.table.get_valid_count() >= 4:
-                self.calc_callback()
-            else:
-                self.results_text.delete(1.0, tk.END)
-                self.results_text.insert(tk.END, "Недостаточно точек для автообновления\n(нужно ≥4)", "warning")
-                self.results_text.tag_config("warning", foreground="orange")
-                self.results_table.clear()
 
 
 def setup_auto_update_button(parent, table, graph, results_text, results_table, calc_callback):

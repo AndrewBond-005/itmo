@@ -41,15 +41,12 @@ def polinom_approx(x, y, n, nn):
 def exponential_approx(x, y, n):
     yn = [math.log(y[i]) for i in range(n)]
     a, b = linear_approx(x, yn, n)
-    print(a, b)
-    print(math.exp(a), b)
     return (math.exp(a), b)
 
 
 def logarithmic_approx(x, y, n):
     xn = [math.log(x[i]) for i in range(n)]
     a, b = linear_approx(xn, y, n)
-    print(a, b)
     return (b, a)
 
 
@@ -57,6 +54,4 @@ def power_approx(x, y, n):
     yn = [math.log(y[i]) for i in range(n)]
     xn = [math.log(x[i]) for i in range(n)]
     a, b = linear_approx(xn, yn, n)
-    print(a, b)
-    print(math.exp(a), b)
     return (math.exp(a), b)

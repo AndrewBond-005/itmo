@@ -1,10 +1,18 @@
 # Константы кнопки вычисления
-BUTTON_CALC_COLOR = "green"
+import tkinter as tk
+from tkinter import ttk
+
+BUTTON_CALC_COLOR = "#009500"
+BUTTON_CALC_DARKER_COLOR = "#006400"
 BUTTON_CALC_TEXT = "Вычислить"
 BUTTON_PADDING = 5
 
-import tkinter as tk
-from tkinter import ttk
+# Настройки границы кнопки вычисления
+BUTTON_CALC_BORDER_WIDTH = 2
+BUTTON_CALC_BORDER_COLOR = "#000000"
+BUTTON_CALC_RELIEF = tk.RIDGE
+
+
 from approximation_logic import (
     compute_all_approximations,
     find_best_approximation,
@@ -16,20 +24,27 @@ from approximation_logic import (
 
 def setup_calc_button(parent, table, graph, results_text, results_table):
     """Создаёт и настраивает кнопку "Вычислить"."""
-    style = ttk.Style()
-    style.configure("Calc.TButton", background=BUTTON_CALC_COLOR)
-
-    btn = ttk.Button(
+    btn = tk.Button(
         parent,
         text=BUTTON_CALC_TEXT,
-        style="Calc.TButton",
-        command=lambda: on_calc_click(table, graph, results_text, results_table)
+        bg=BUTTON_CALC_COLOR,
+        fg="white",
+        relief=BUTTON_CALC_RELIEF,
+        bd=BUTTON_CALC_BORDER_WIDTH,
+        highlightbackground=BUTTON_CALC_BORDER_COLOR,
+        highlightcolor=BUTTON_CALC_BORDER_COLOR,
+        highlightthickness=BUTTON_CALC_BORDER_WIDTH,
+        padx=10,
+        pady=2,
+        activebackground=BUTTON_CALC_DARKER_COLOR,
+        activeforeground="white",
+        command=lambda: on_calc_click(btn, table, graph, results_text, results_table)
     )
     btn.pack(pady=BUTTON_PADDING)
     return btn
 
 
-def on_calc_click(table, graph, results_text, results_table):
+def on_calc_click(btn, table, graph, results_text, results_table):
     """Обработчик нажатия кнопки "Вычислить"."""
     # Получаем данные из таблицы
     data = table.get_valid_data()
