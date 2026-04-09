@@ -1,9 +1,27 @@
-# Константы таблицы
+# Константы таблицы данных
 DATA_CHANGED_EVENT = "<<DataChanged>>"
 DEFAULT_ROWS = 12
+
+# Настройки внешнего вида
+FONT_FAMILY = "Arial"
+FONT_SIZE = 10
+FONT_BOLD = (FONT_FAMILY, FONT_SIZE, "bold")
+FONT_NORMAL = (FONT_FAMILY, FONT_SIZE)
+
+# Размеры
 ENTRY_WIDTH = 12
 LABEL_WIDTH = 8
 BUTTON_WIDTH = 3
+ROW_HEIGHT = 25
+CELL_PAD_X = 0
+CELL_PAD_Y = 0
+
+# Цвета
+HEADER_BG = "lightgray"
+CELL_BG = "white"
+DEL_BUTTON_COLOR = "red"
+BORDER_RELIEF = "solid"
+BORDER_WIDTH = 1
 
 import tkinter as tk
 from tkinter import ttk
@@ -27,10 +45,10 @@ class DataTable(ttk.Frame):
             label = tk.Label(
                 self,
                 text=text,
-                relief="solid",
-                borderwidth=1,
-                bg="lightgray",
-                font=('Arial', 10, 'bold')
+                relief=BORDER_RELIEF,
+                borderwidth=BORDER_WIDTH,
+                bg=HEADER_BG,
+                font=FONT_BOLD
             )
             label.grid(row=0, column=col, sticky="nsew")
 
@@ -40,34 +58,39 @@ class DataTable(ttk.Frame):
             num_label = tk.Label(
                 self,
                 text=str(row),
-                relief="solid",
-                borderwidth=1,
-                bg="white",
-                width=LABEL_WIDTH
+                relief=BORDER_RELIEF,
+                borderwidth=BORDER_WIDTH,
+                bg=CELL_BG,
+                width=LABEL_WIDTH,
+                font=FONT_NORMAL
             )
             num_label.grid(row=row, column=0, sticky="nsew")
 
             # Entry для X
             x_entry = tk.Entry(
                 self,
-                relief="solid",
-                borderwidth=1,
+                relief=BORDER_RELIEF,
+                borderwidth=BORDER_WIDTH,
                 justify='center',
-                bg="white"
+                bg=CELL_BG,
+                font=FONT_NORMAL,
+                width=ENTRY_WIDTH
             )
-            x_entry.grid(row=row, column=1, sticky="nsew", padx=0, pady=0)
+            x_entry.grid(row=row, column=1, sticky="nsew", padx=CELL_PAD_X, pady=CELL_PAD_Y)
             x_entry.bind("<FocusOut>", lambda e, r=row, c=1: self._validate_entry(r, c))
             x_entry.bind("<Return>", self._on_enter_pressed)
 
             # Entry для Y
             y_entry = tk.Entry(
                 self,
-                relief="solid",
-                borderwidth=1,
+                relief=BORDER_RELIEF,
+                borderwidth=BORDER_WIDTH,
                 justify='center',
-                bg="white"
+                bg=CELL_BG,
+                font=FONT_NORMAL,
+                width=ENTRY_WIDTH
             )
-            y_entry.grid(row=row, column=2, sticky="nsew", padx=0, pady=0)
+            y_entry.grid(row=row, column=2, sticky="nsew", padx=CELL_PAD_X, pady=CELL_PAD_Y)
             y_entry.bind("<FocusOut>", lambda e, r=row, c=2: self._validate_entry(r, c))
             y_entry.bind("<Return>", self._on_enter_pressed)
 
@@ -75,10 +98,12 @@ class DataTable(ttk.Frame):
             del_btn = tk.Button(
                 self,
                 text="🗑",
-                fg="red",
-                relief="solid",
-                borderwidth=1,
-                bg="white",
+                fg=DEL_BUTTON_COLOR,
+                relief=BORDER_RELIEF,
+                borderwidth=BORDER_WIDTH,
+                bg=CELL_BG,
+                font=FONT_NORMAL,
+                width=BUTTON_WIDTH,
                 command=lambda r=row: self._delete_row(r)
             )
             del_btn.grid(row=row, column=3, sticky="nsew")
@@ -166,7 +191,6 @@ class DataTable(ttk.Frame):
         """Возвращает количество валидных точек."""
         return len(self.get_valid_data())
 
-    # В методе add_point:
     def add_point(self, x, y):
         """Добавляет точку в первую свободную строку."""
         for row in range(1, self.rows_count + 1):
@@ -188,7 +212,6 @@ class DataTable(ttk.Frame):
                 return True
         return False
 
-    # В методе remove_last_point:
     def remove_last_point(self):
         """Удаляет последнюю непустую точку."""
         for row in range(self.rows_count, 0, -1):
@@ -210,11 +233,8 @@ class DataTable(ttk.Frame):
                 return True
         return False
 
-    # В методе _on_data_changed:
     def _on_data_changed(self):
         """Генерирует событие об изменении данных."""
-        # Принудительно обновляем интерфейс перед генерацией события
         self.update_idletasks()
         self.event_generate(DATA_CHANGED_EVENT)
-        # Ещё раз обновляем для надёжности
         self.update_idletasks()

@@ -14,7 +14,7 @@ from approximation_logic import (
 )
 
 
-def setup_calc_button(parent, table, graph, results_text):
+def setup_calc_button(parent, table, graph, results_text, results_table):
     """Создаёт и настраивает кнопку "Вычислить"."""
     style = ttk.Style()
     style.configure("Calc.TButton", background=BUTTON_CALC_COLOR)
@@ -23,19 +23,20 @@ def setup_calc_button(parent, table, graph, results_text):
         parent,
         text=BUTTON_CALC_TEXT,
         style="Calc.TButton",
-        command=lambda: on_calc_click(table, graph, results_text)
+        command=lambda: on_calc_click(table, graph, results_text, results_table)
     )
     btn.pack(pady=BUTTON_PADDING)
     return btn
 
 
-def on_calc_click(table, graph, results_text):
+def on_calc_click(table, graph, results_text, results_table):
     """Обработчик нажатия кнопки "Вычислить"."""
     # Получаем данные из таблицы
     data = table.get_valid_data()
 
     # Очищаем предыдущие результаты
     results_text.delete(1.0, tk.END)
+    results_table.clear()
 
     # Проверяем количество точек
     if len(data) < 4:
@@ -59,16 +60,14 @@ def on_calc_click(table, graph, results_text):
         results_text.tag_config("error", foreground="red")
         return
 
+    # Заполняем таблицу результатов
+    results_table.update_results(approximations)
+
     # Находим лучшую
     best = find_best_approximation(approximations)
 
     # Выводим результаты
     results_text.insert(tk.END, format_results_text(best))
-
-    # Добавляем цветовое форматирование
-    quality_color = get_quality_color(best['R2'])
-    results_text.tag_config("best", font=("Arial", 11, "bold"), foreground="green")
-    results_text.tag_config("quality", foreground=quality_color, font=("Arial", 10, "bold"))
 
     # Рисуем функцию на графике
     x_range, y_range = generate_function_points(x_values, best)

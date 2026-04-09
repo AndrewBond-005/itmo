@@ -11,11 +11,12 @@ from tkinter import ttk
 class AutoUpdateButton:
     """Класс для кнопки автообновления с состоянием."""
 
-    def __init__(self, parent, table, graph, results_text, calc_callback):
+    def __init__(self, parent, table, graph, results_text, results_table, calc_callback):
         self.parent = parent
         self.table = table
         self.graph = graph
         self.results_text = results_text
+        self.results_table = results_table
         self.calc_callback = calc_callback
         self.active = False
 
@@ -52,16 +53,16 @@ class AutoUpdateButton:
 
     def _check_and_update(self):
         """Проверяет количество точек и вызывает пересчёт."""
-        if self.active:  # Проверяем только если активно
+        if self.active:
             if self.table.get_valid_count() >= 4:
                 self.calc_callback()
             else:
-                # Просто обновляем текст результатов
                 self.results_text.delete(1.0, tk.END)
                 self.results_text.insert(tk.END, "Недостаточно точек для автообновления\n(нужно ≥4)", "warning")
                 self.results_text.tag_config("warning", foreground="orange")
+                self.results_table.clear()
 
 
-def setup_auto_update_button(parent, table, graph, results_text, calc_callback):
+def setup_auto_update_button(parent, table, graph, results_text, results_table, calc_callback):
     """Создаёт и возвращает кнопку автообновления."""
-    return AutoUpdateButton(parent, table, graph, results_text, calc_callback)
+    return AutoUpdateButton(parent, table, graph, results_text, results_table, calc_callback)
