@@ -1,6 +1,7 @@
 # Константы для аппроксимации
 POLY_DEGREE = 3  # Степень полинома + 1 (3 = 2-я степень)
-
+R_THRESHOLD = 0.95
+POLY_DEGREE_3=4
 from aprox import *
 from funcs import *
 from utils import format_number
@@ -38,7 +39,7 @@ def compute_all_approximations(x_values, y_values):
     except:
         pass
 
-    # Полином 2-й степени
+    # Квадратичная
     if n >= 3:
         try:
             coeffs = polinom_approx(x_values, y_values, n, POLY_DEGREE)
@@ -56,7 +57,7 @@ def compute_all_approximations(x_values, y_values):
                     formula += f" - {format_number(abs(coeffs[i]))}x^{i}"
 
             approximations.append({
-                'name': 'Полином 2-й степени',
+                'name': 'Квадратичная',
                 'coeffs': coeffs,
                 'func_type': 'poly',
                 'S': S,
@@ -67,6 +68,36 @@ def compute_all_approximations(x_values, y_values):
             })
         except:
             pass
+
+    if n >= 4:
+        try:
+            coeffs = polinom_approx(x_values, y_values, n, POLY_DEGREE_3)
+            phi_vals = compute_phi(x_values, coeffs, 'poly')
+            S = sum_of_squares(y_values, phi_vals)
+            sigma = std_deviation(y_values, phi_vals)
+            R2 = determination_coefficient(y_values, phi_vals)
+            r = correlation_coefficient(x_values, y_values)
+
+            formula = f"y = {format_number(coeffs[0])}"
+            for i in range(1, len(coeffs)):
+                if coeffs[i] >= 0:
+                    formula += f" + {format_number(coeffs[i])}x^{i}"
+                else:
+                    formula += f" - {format_number(abs(coeffs[i]))}x^{i}"
+
+            approximations.append({
+                'name': 'Кубическая',
+                'coeffs': coeffs,
+                'func_type': 'poly',
+                'S': S,
+                'sigma': sigma,
+                'R2': R2,
+                'r': r,
+                'formula': formula
+            })
+        except:
+            pass
+
 
     # Экспоненциальная
     try:
@@ -140,10 +171,20 @@ def compute_all_approximations(x_values, y_values):
     return approximations
 
 
-def find_best_approximation(approximations):
-    """Возвращает лучшую аппроксимацию по коэффициенту детерминации R²."""
+def find_best_approximation(approximations, r_threshold=R_THRESHOLD):
+    """
+    Выбирает лучшую аппроксимацию.
+    Если у линейной |r| > r_threshold - выбираем линейную.
+    Иначе - по R².
+    """
     if not approximations:
         return None
+
+    linear = next((a for a in approximations if a['name'] == 'Линейная'), None)
+
+    if linear and abs(linear.get('r', 0)) > r_threshold:
+        return linear
+
     return max(approximations, key=lambda x: x['R2'])
 
 
@@ -153,9 +194,6 @@ def format_results_text(best):
         return "Не удалось вычислить аппроксимацию"
 
     lines = []
-    lines.append("РЕЗУЛЬТАТЫ АППРОКСИМАЦИИ")
-    lines.append("=" * 40)
-    lines.append("")
     lines.append(f"Лучшая функция: {best['name']}")
     lines.append(f"{best['formula']}")
     lines.append("")
@@ -163,7 +201,8 @@ def format_results_text(best):
     lines.append(f"Сумма квадратов отклонений (S): {format_number(best['S'], 6)}")
     lines.append(f"Среднеквадратическое отклонение (δ): {format_number(best['sigma'], 6)}")
     lines.append(f"Коэффициент детерминации (R²): {format_number(best['R2'], 6)}")
-    lines.append(f"Коэффициент корреляции (r): {format_number(best['r'], 6)}")
+    if best['name'] == 'Линейная':
+        lines.append(f"Коэффициент корреляции (r): {format_number(best['r'], 6)}")
     lines.append("")
 
     # Оценка качества
@@ -220,3 +259,15 @@ def generate_function_points(x_values, best):
         return [], []
 
     return x_range, y_range
+
+def compute_phi_values(x_values, best):
+    """Вычисляет значения φ(x) для лучшей функции."""
+    if best['func_type'] == 'poly':
+        return [polynomial(x, best['coeffs']) for x in x_values]
+    elif best['func_type'] == 'exp':
+        return [best['coeffs'][0] * math.exp(best['coeffs'][1] * x) for x in x_values]
+    elif best['func_type'] == 'log':
+        return [best['coeffs'][0] * math.log(x) + best['coeffs'][1] for x in x_values]
+    elif best['func_type'] == 'power':
+        return [best['coeffs'][0] * (x ** best['coeffs'][1]) for x in x_values]
+    return []

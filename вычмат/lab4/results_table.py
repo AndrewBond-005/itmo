@@ -111,11 +111,17 @@ class ResultsTable(ttk.Frame):
                 c = "—"
                 d = "—"
                 r_val = format_number(approx['r'])
-            elif name == 'Полином 2-й степени':
+            elif name == 'Квадратичная':
                 a = format_number(coeffs[0])
                 b = format_number(coeffs[1])
                 c = format_number(coeffs[2])
                 d = "—"
+                r_val = "—"
+            elif name == 'Кубическая':
+                a = format_number(coeffs[0])
+                b = format_number(coeffs[1])
+                c = format_number(coeffs[2])
+                d = format_number(coeffs[3])
                 r_val = "—"
             elif name == 'Экспоненциальная':
                 a = format_number(coeffs[0])

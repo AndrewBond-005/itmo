@@ -1,27 +1,10 @@
-# Константы таблицы данных
+# Константы таблицы
 DATA_CHANGED_EVENT = "<<DataChanged>>"
 DEFAULT_ROWS = 12
-
-# Настройки внешнего вида
-FONT_FAMILY = "Arial"
-FONT_SIZE = 10
-FONT_BOLD = (FONT_FAMILY, FONT_SIZE, "bold")
-FONT_NORMAL = (FONT_FAMILY, FONT_SIZE)
-
-# Размеры
-ENTRY_WIDTH = 12
+COLUMNS = ["№", "x", "y", "φ(x)", "ε", ""]
+COLUMN_WIDTHS = [50, 100, 100, 100, 100, 60]
 LABEL_WIDTH = 8
-BUTTON_WIDTH = 3
-ROW_HEIGHT = 25
-CELL_PAD_X = 0
-CELL_PAD_Y = 0
-
-# Цвета
-HEADER_BG = "lightgray"
-CELL_BG = "white"
-DEL_BUTTON_COLOR = "red"
-BORDER_RELIEF = "solid"
-BORDER_WIDTH = 1
+ENTRY_WIDTH = 12
 
 import tkinter as tk
 from tkinter import ttk
@@ -40,17 +23,18 @@ class DataTable(ttk.Frame):
     def _create_table(self):
         """Создание таблицы через Frame + Entry."""
         # Заголовки
-        headers = ["№", "x", "y", "🗑"]
+        headers = COLUMNS
         for col, text in enumerate(headers):
             label = tk.Label(
                 self,
                 text=text,
-                relief=BORDER_RELIEF,
-                borderwidth=BORDER_WIDTH,
-                bg=HEADER_BG,
-                font=FONT_BOLD
+                relief="solid",
+                borderwidth=1,
+                bg="lightgray",
+                font=('Arial', 10, 'bold')
             )
             label.grid(row=0, column=col, sticky="nsew")
+            self.grid_columnconfigure(col, weight=0 if col in [0, 5] else 1)
 
         # Строки с данными
         for row in range(1, self.rows_count + 1):
@@ -58,70 +42,79 @@ class DataTable(ttk.Frame):
             num_label = tk.Label(
                 self,
                 text=str(row),
-                relief=BORDER_RELIEF,
-                borderwidth=BORDER_WIDTH,
-                bg=CELL_BG,
-                width=LABEL_WIDTH,
-                font=FONT_NORMAL
+                relief="solid",
+                borderwidth=1,
+                bg="white",
+                width=LABEL_WIDTH
             )
             num_label.grid(row=row, column=0, sticky="nsew")
 
             # Entry для X
             x_entry = tk.Entry(
                 self,
-                relief=BORDER_RELIEF,
-                borderwidth=BORDER_WIDTH,
+                relief="solid",
+                borderwidth=1,
                 justify='center',
-                bg=CELL_BG,
-                font=FONT_NORMAL,
-                width=ENTRY_WIDTH
+                bg="white"
             )
-            x_entry.grid(row=row, column=1, sticky="nsew", padx=CELL_PAD_X, pady=CELL_PAD_Y)
+            x_entry.grid(row=row, column=1, sticky="nsew", padx=0, pady=0)
             x_entry.bind("<FocusOut>", lambda e, r=row, c=1: self._validate_entry(r, c))
             x_entry.bind("<Return>", self._on_enter_pressed)
 
             # Entry для Y
             y_entry = tk.Entry(
                 self,
-                relief=BORDER_RELIEF,
-                borderwidth=BORDER_WIDTH,
+                relief="solid",
+                borderwidth=1,
                 justify='center',
-                bg=CELL_BG,
-                font=FONT_NORMAL,
-                width=ENTRY_WIDTH
+                bg="white"
             )
-            y_entry.grid(row=row, column=2, sticky="nsew", padx=CELL_PAD_X, pady=CELL_PAD_Y)
+            y_entry.grid(row=row, column=2, sticky="nsew", padx=0, pady=0)
             y_entry.bind("<FocusOut>", lambda e, r=row, c=2: self._validate_entry(r, c))
             y_entry.bind("<Return>", self._on_enter_pressed)
+
+            # Label для φ(x) (только для чтения)
+            phi_label = tk.Label(
+                self,
+                text="",
+                relief="solid",
+                borderwidth=1,
+                bg="#f0f0f0"
+            )
+            phi_label.grid(row=row, column=3, sticky="nsew")
+
+            # Label для ε (только для чтения)
+            eps_label = tk.Label(
+                self,
+                text="",
+                relief="solid",
+                borderwidth=1,
+                bg="#f0f0f0"
+            )
+            eps_label.grid(row=row, column=4, sticky="nsew")
 
             # Кнопка удаления
             del_btn = tk.Button(
                 self,
                 text="🗑",
-                fg=DEL_BUTTON_COLOR,
-                relief=BORDER_RELIEF,
-                borderwidth=BORDER_WIDTH,
-                bg=CELL_BG,
-                font=FONT_NORMAL,
-                width=BUTTON_WIDTH,
+                fg="red",
+                relief="solid",
+                borderwidth=1,
+                bg="white",
                 command=lambda r=row: self._delete_row(r)
             )
-            del_btn.grid(row=row, column=3, sticky="nsew")
+            del_btn.grid(row=row, column=5, sticky="nsew")
 
-            # Сохраняем Entry в список
+            # Сохраняем виджеты в список
             self.entries.append({
                 'row': row,
                 'x_entry': x_entry,
                 'y_entry': y_entry,
+                'phi_label': phi_label,
+                'eps_label': eps_label,
                 'num_label': num_label,
                 'del_btn': del_btn
             })
-
-        # Настройка весов колонок для растягивания
-        self.grid_columnconfigure(0, weight=0)  # №
-        self.grid_columnconfigure(1, weight=1)  # x
-        self.grid_columnconfigure(2, weight=1)  # y
-        self.grid_columnconfigure(3, weight=0)  # кнопка
 
         for row in range(self.rows_count + 1):
             self.grid_rowconfigure(row, weight=1)
@@ -139,18 +132,15 @@ class DataTable(ttk.Frame):
             if value.strip():
                 parsed = parse_number(value)
                 if parsed is not None:
-                    # Форматируем число
                     entry_widget.delete(0, tk.END)
                     entry_widget.insert(0, format_number(parsed))
                 else:
-                    # Если не число - очищаем
                     entry_widget.delete(0, tk.END)
 
         self._on_data_changed()
 
     def _delete_row(self, row):
         """Удаляет данные из строки и сдвигает остальные."""
-        # Сдвигаем данные вверх
         for i in range(row, self.rows_count):
             # Получаем значения из следующей строки
             next_x = self.grid_slaves(row=i + 1, column=1)[0].get()
@@ -165,6 +155,9 @@ class DataTable(ttk.Frame):
         # Очищаем последнюю строку
         self.grid_slaves(row=self.rows_count, column=1)[0].delete(0, tk.END)
         self.grid_slaves(row=self.rows_count, column=2)[0].delete(0, tk.END)
+
+        # Очищаем φ(x) и ε
+        self.clear_phi_epsilon()
 
         self._on_data_changed()
 
@@ -187,9 +180,38 @@ class DataTable(ttk.Frame):
                     })
         return result
 
+    def get_valid_rows(self):
+        """Возвращает список индексов строк с валидными данными."""
+        return [item['row'] for item in self.get_valid_data()]
+
     def get_valid_count(self):
         """Возвращает количество валидных точек."""
         return len(self.get_valid_data())
+
+    def set_cell_value(self, row, col, value):
+        """Устанавливает значение в ячейку."""
+        if 1 <= row <= self.rows_count:
+            widget = self.grid_slaves(row=row, column=col)[0]
+            if isinstance(widget, tk.Label):
+                widget.configure(text=str(value))
+            elif isinstance(widget, tk.Entry):
+                widget.delete(0, tk.END)
+                widget.insert(0, str(value))
+
+    def update_phi_epsilon(self, phi_values, epsilon_values):
+        """Обновляет колонки φ(x) и ε для всех валидных строк."""
+        valid_rows = self.get_valid_rows()
+        for i, row_idx in enumerate(valid_rows):
+            if i < len(phi_values):
+                self.set_cell_value(row_idx, 3, format_number(phi_values[i]))
+            if i < len(epsilon_values):
+                self.set_cell_value(row_idx, 4, format_number(epsilon_values[i]))
+
+    def clear_phi_epsilon(self):
+        """Очищает φ(x) и ε."""
+        for row in range(1, self.rows_count + 1):
+            self.set_cell_value(row, 3, "")
+            self.set_cell_value(row, 4, "")
 
     def add_point(self, x, y):
         """Добавляет точку в первую свободную строку."""
@@ -197,17 +219,12 @@ class DataTable(ttk.Frame):
             x_widget = self.grid_slaves(row=row, column=1)[0]
             y_widget = self.grid_slaves(row=row, column=2)[0]
 
-            # Проверяем что строка пустая
             if not x_widget.get().strip() and not y_widget.get().strip():
                 x_widget.delete(0, tk.END)
                 x_widget.insert(0, format_number(x))
                 y_widget.delete(0, tk.END)
                 y_widget.insert(0, format_number(y))
-
-                # Принудительно обновляем интерфейс
                 self.update_idletasks()
-
-                # Генерируем событие
                 self._on_data_changed()
                 return True
         return False
@@ -224,11 +241,7 @@ class DataTable(ttk.Frame):
             if x_val is not None and y_val is not None:
                 x_widget.delete(0, tk.END)
                 y_widget.delete(0, tk.END)
-
-                # Принудительно обновляем интерфейс
                 self.update_idletasks()
-
-                # Генерируем событие
                 self._on_data_changed()
                 return True
         return False

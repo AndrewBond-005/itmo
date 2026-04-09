@@ -2,7 +2,7 @@
 WINDOW_TITLE = "Апроксимация функции"
 WINDOW_WIDTH = 1000
 WINDOW_HEIGHT = 600
-RESULTS_TEXT_HEIGHT = 6
+RESULTS_TEXT_HEIGHT = 10
 RESULTS_TEXT_WIDTH = 40
 LEFT_PANEL_WIDTH_RATIO = 0.33
 RIGHT_PANEL_WIDTH_RATIO = 0.67
@@ -141,10 +141,10 @@ class App:
         if self.auto_update_btn.is_active():
             if len(data) >= 4:
                 from buttons.calc_button import on_calc_click
-                # Передаём self.calc_button как первый аргумент
                 on_calc_click(self.calc_button, self.table, self.graph, self.results_text, self.results_table)
             else:
                 self.results_text.delete(1.0, tk.END)
                 self.results_text.insert(tk.END, "Недостаточно точек для автообновления\n(нужно ≥4)", "warning")
                 self.results_text.tag_config("warning", foreground="orange")
                 self.results_table.clear()
+                self.table.clear_phi_epsilon()

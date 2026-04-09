@@ -18,7 +18,7 @@ from approximation_logic import (
     find_best_approximation,
     format_results_text,
     get_quality_color,
-    generate_function_points
+    generate_function_points, compute_phi_values
 )
 
 
@@ -46,28 +46,23 @@ def setup_calc_button(parent, table, graph, results_text, results_table):
 
 def on_calc_click(btn, table, graph, results_text, results_table):
     """Обработчик нажатия кнопки "Вычислить"."""
-    # Получаем данные из таблицы
     data = table.get_valid_data()
 
-    # Очищаем предыдущие результаты
     results_text.delete(1.0, tk.END)
     results_table.clear()
+    table.clear_phi_epsilon()
 
-    # Проверяем количество точек
     if len(data) < 4:
         results_text.insert(tk.END, "Недостаточно точек (нужно ≥4)\n", "error")
         results_text.tag_config("error", foreground="red")
         return
 
-    # Извлекаем x и y
     x_values = [item['x'] for item in data]
     y_values = [item['y'] for item in data]
 
-    # Очищаем график и рисуем точки
     graph.clear()
     graph.plot_points(x_values, y_values)
 
-    # Вычисляем аппроксимации
     approximations = compute_all_approximations(x_values, y_values)
 
     if not approximations:
@@ -75,16 +70,17 @@ def on_calc_click(btn, table, graph, results_text, results_table):
         results_text.tag_config("error", foreground="red")
         return
 
-    # Заполняем таблицу результатов
     results_table.update_results(approximations)
 
-    # Находим лучшую
     best = find_best_approximation(approximations)
 
-    # Выводим результаты
     results_text.insert(tk.END, format_results_text(best))
 
-    # Рисуем функцию на графике
+    # Вычисляем φ(x) и ε для лучшей функции
+    phi_values = compute_phi_values(x_values, best)
+    epsilon_values = [y_values[i] - phi_values[i] for i in range(len(y_values))]
+    table.update_phi_epsilon(phi_values, epsilon_values)
+
     x_range, y_range = generate_function_points(x_values, best)
     if x_range and y_range:
         graph.plot_function(x_range, y_range)
