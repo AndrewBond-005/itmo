@@ -1,12 +1,6 @@
-# Константы для форматирования
-DEFAULT_DECIMALS = 3
-
+# utils.py
 def parse_number(s):
-    """
-    Преобразует строку в число float.
-    Поддерживает запятую как десятичный разделитель.
-    Возвращает None, если преобразование невозможно.
-    """
+    """Преобразует строку в число float."""
     if not isinstance(s, str):
         s = str(s)
     s = s.strip().replace(",", ".")
@@ -15,10 +9,8 @@ def parse_number(s):
     except ValueError:
         return None
 
-def format_number(value, decimals=DEFAULT_DECIMALS):
-    """
-    Форматирует число в строку с заданным количеством знаков после запятой.
-    """
+def format_number(value, decimals=3):
+    """Форматирует число в строку."""
     if value is None:
         return ""
     try:

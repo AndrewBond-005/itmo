@@ -2,7 +2,7 @@
 
 import tkinter as tk
 from tkinter import ttk
-BUTTON_POINT_MODE_TEXT = "📍 Режим точек"
+BUTTON_POINT_MODE_TEXT = "📍"
 BUTTON_POINT_MODE_ACTIVE_COLOR = "#006697"
 BUTTON_POINT_MODE_INACTIVE_COLOR = "#a1a4a1"
 BUTTON_PADDING = 5

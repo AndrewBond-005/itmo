@@ -45,7 +45,8 @@ class DataTable(ttk.Frame):
                 relief="solid",
                 borderwidth=1,
                 bg="white",
-                width=LABEL_WIDTH
+                width=LABEL_WIDTH,
+                height = 1
             )
             num_label.grid(row=row, column=0, sticky="nsew")
 
@@ -55,7 +56,8 @@ class DataTable(ttk.Frame):
                 relief="solid",
                 borderwidth=1,
                 justify='center',
-                bg="white"
+                bg="white",
+                width = 12
             )
             x_entry.grid(row=row, column=1, sticky="nsew", padx=0, pady=0)
             x_entry.bind("<FocusOut>", lambda e, r=row, c=1: self._validate_entry(r, c))
@@ -180,6 +182,107 @@ class DataTable(ttk.Frame):
                     })
         return result
 
+    # В класс DataTable добавить:
+    def set_row_count(self, new_count):
+        """Изменяет количество строк в таблице."""
+        current = self.rows_count
+
+        if new_count == current:
+            return
+
+        if new_count > current:
+            # Добавляем строки
+            for row in range(current + 1, new_count + 1):
+                self._add_row(row)
+        elif new_count < current:
+            # Удаляем лишние строки (с конца)
+            for row in range(current, new_count, -1):
+                self._remove_row(row)
+
+        self.rows_count = new_count
+        self._on_data_changed()
+
+    def _add_row(self, row):
+        """Добавляет одну строку в таблицу."""
+        num_label = tk.Label(
+            self,
+            text=str(row),
+            relief="solid",
+            borderwidth=1,
+            bg="white",
+            width=LABEL_WIDTH
+        )
+        num_label.grid(row=row, column=0, sticky="nsew")
+
+        x_entry = tk.Entry(
+            self,
+            relief="solid",
+            borderwidth=1,
+            justify='center',
+            bg="white"
+        )
+        x_entry.grid(row=row, column=1, sticky="nsew", padx=0, pady=0)
+        x_entry.bind("<FocusOut>", lambda e, r=row, c=1: self._validate_entry(r, c))
+        x_entry.bind("<Return>", self._on_enter_pressed)
+
+        y_entry = tk.Entry(
+            self,
+            relief="solid",
+            borderwidth=1,
+            justify='center',
+            bg="white"
+        )
+        y_entry.grid(row=row, column=2, sticky="nsew", padx=0, pady=0)
+        y_entry.bind("<FocusOut>", lambda e, r=row, c=2: self._validate_entry(r, c))
+        y_entry.bind("<Return>", self._on_enter_pressed)
+
+        phi_label = tk.Label(
+            self,
+            text="",
+            relief="solid",
+            borderwidth=1,
+            bg="#f0f0f0"
+        )
+        phi_label.grid(row=row, column=3, sticky="nsew")
+
+        eps_label = tk.Label(
+            self,
+            text="",
+            relief="solid",
+            borderwidth=1,
+            bg="#f0f0f0"
+        )
+        eps_label.grid(row=row, column=4, sticky="nsew")
+
+        del_btn = tk.Button(
+            self,
+            text="🗑",
+            fg="red",
+            relief="solid",
+            borderwidth=1,
+            bg="white",
+            command=lambda r=row: self._delete_row(r)
+        )
+        del_btn.grid(row=row, column=5, sticky="nsew")
+
+        self.entries.append({
+            'row': row,
+            'x_entry': x_entry,
+            'y_entry': y_entry,
+            'phi_label': phi_label,
+            'eps_label': eps_label,
+            'num_label': num_label,
+            'del_btn': del_btn
+        })
+
+        self.grid_rowconfigure(row, weight=1)
+
+    def _remove_row(self, row):
+        """Удаляет одну строку из таблицы."""
+        for widget in self.grid_slaves(row=row):
+            widget.destroy()
+
+        self.entries = [e for e in self.entries if e['row'] != row]
     def get_valid_rows(self):
         """Возвращает список индексов строк с валидными данными."""
         return [item['row'] for item in self.get_valid_data()]
@@ -251,3 +354,4 @@ class DataTable(ttk.Frame):
         self.update_idletasks()
         self.event_generate(DATA_CHANGED_EVENT)
         self.update_idletasks()
+
