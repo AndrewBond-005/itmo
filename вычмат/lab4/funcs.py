@@ -23,6 +23,20 @@ def sxn(lst, power):
         s= s+ lst[i] ** power
     return s
 
+
+def det(m):#по столбцу мб
+    d = 0
+    n = len(m)
+    if n == 2:
+        return m[0][0] * m[1][1] - m[0][1] * m[1][0]
+    for i in range(0, n):
+        a = []
+        for j in range(0, n):
+            if i != j:
+                a.append(m[j][1:])
+        d += m[i][0] * (-1) ** i * det(a)
+    return d
+
 def polynomial(x, coeffs):
     result = 0
     for power, coef in enumerate(coeffs):
@@ -77,16 +91,3 @@ def correlation_coeff(x, y):
     if denominator == 0:
         return 0.0
     return numerator / denominator
-
-def det(m):
-    d = 0
-    n = len(m)
-    if n == 2:
-        return m[0][0] * m[1][1] - m[0][1] * m[1][0]
-    for i in range(0, n):
-        a = []
-        for j in range(0, n):
-            if i != j:
-                a.append(m[j][1:])
-        d += m[i][0] * (-1) ** i * det(a)
-    return d

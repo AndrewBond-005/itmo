@@ -63,7 +63,7 @@ def on_calc_click(btn, table, graph, results_text, results_table):
             results_table.labels[row][col].config(text="", bg=CELL_BG, fg="black")
     table.clear_phi_epsilon()
 
-    if len(data) < 8:
+    if len(data) < 7:
         results_text.insert(tk.END, "Недостаточно точек (нужно ≥8)\n", "error")
         results_text.tag_config("error", foreground="red")
         return

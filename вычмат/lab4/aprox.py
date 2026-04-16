@@ -12,7 +12,12 @@ def linear_approx(x, y, n):
 
 
 def polinom_approx(x, y, n, nn):
-    m = [[0 for i in range(nn)] for j in range(nn)]
+    m = []
+    for j in range(nn):
+        row = []
+        for i in range(nn):
+            row.append(0)
+        m.append(row)
     for i in range(0, nn):
         for j in range(0, nn):
             if (i == 0 and j == 0):

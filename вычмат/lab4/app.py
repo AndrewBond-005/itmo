@@ -4,7 +4,7 @@ RESULTS_TEXT_HEIGHT = 8
 RESULTS_TEXT_WIDTH = 40
 LEFT_PANEL_WIDTH_RATIO = 0.33
 RIGHT_PANEL_WIDTH_RATIO = 0.67
-MIN_POINTS = 8
+MIN_POINTS =7
 MAX_POINTS = 12
 
 import tkinter as tk
@@ -199,7 +199,7 @@ class App:
         """Перерисовывает все функции: лучшую и выбранные."""
         data = self.table.get_valid_data()
 
-        if len(data) < 8:
+        if len(data) < 7:
             return
 
         x_values = [d['x'] for d in data]

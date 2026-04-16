@@ -8,7 +8,7 @@ from utils import format_number
 import math
 
 
-def check_points_scatter(x_values, y_values, min_distance=0.0001):
+def check_points_scatter(x_values, y_values, min_distance=0.01):
     """
     Проверяет, что суммарное расстояние между всеми точками больше min_distance.
     Возвращает True, если точки достаточно разбросаны, иначе False.
@@ -32,7 +32,7 @@ def compute_all_approximations(x_values, y_values):
     """
     n = len(x_values)
     approximations = []
-    if not check_points_scatter(x_values, y_values, 0.0001):
+    if not check_points_scatter(x_values, y_values, 0.01):
         return []
         # Линейная
     try:
@@ -190,11 +190,6 @@ def compute_all_approximations(x_values, y_values):
 
 
 def find_best_approximation(approximations, r_threshold=R_THRESHOLD):
-    """
-    Выбирает лучшую аппроксимацию.
-    Если у линейной |r| > r_threshold - выбираем линейную.
-    Иначе - по R².
-    """
     if not approximations:
         return None
 
@@ -206,7 +201,6 @@ def find_best_approximation(approximations, r_threshold=R_THRESHOLD):
 
 
 def format_results_text(best):
-    """Формирует форматированный текст с результатами аппроксимации."""
     if best is None:
         return "Не удалось вычислить аппроксимацию"
 
