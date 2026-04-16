@@ -1,6 +1,6 @@
 # Константы для аппроксимации
 POLY_DEGREE = 3  # Степень полинома + 1 (3 = 2-я степень)
-R_THRESHOLD = 0.95
+R_THRESHOLD = 0.965
 POLY_DEGREE_3=4
 from aprox import *
 from funcs import *
@@ -8,6 +8,23 @@ from utils import format_number
 import math
 
 
+def check_points_scatter(x_values, y_values, min_distance=0.0001):
+    """
+    Проверяет, что суммарное расстояние между всеми точками больше min_distance.
+    Возвращает True, если точки достаточно разбросаны, иначе False.
+    """
+    n = len(x_values)
+    if n < 2:
+        return False
+
+    total_distance = 0.0
+    for i in range(n):
+        for j in range(i + 1, n):
+            # Евклидово расстояние между точками
+            dist = math.sqrt((x_values[i] - x_values[j]) ** 2 + (y_values[i] - y_values[j]) ** 2)
+            total_distance += dist
+
+    return total_distance > min_distance
 def compute_all_approximations(x_values, y_values):
     """
     Вычисляет все доступные типы аппроксимаций.
@@ -15,16 +32,17 @@ def compute_all_approximations(x_values, y_values):
     """
     n = len(x_values)
     approximations = []
-
-    # Линейная
+    if not check_points_scatter(x_values, y_values, 0.0001):
+        return []
+        # Линейная
     try:
         a, b = linear_approx(x_values, y_values, n)
         coeffs = (a, b)
         phi_vals = compute_phi(x_values, coeffs, 'poly')
         S = sum_of_squares(y_values, phi_vals)
         sigma = std_deviation(y_values, phi_vals)
-        R2 = determination_coefficient(y_values, phi_vals)
-        r = correlation_coefficient(x_values, y_values)
+        R2 = determination_coeff(y_values, phi_vals)
+        r = correlation_coeff(x_values, y_values)
 
         approximations.append({
             'name': 'Линейная',
@@ -46,8 +64,8 @@ def compute_all_approximations(x_values, y_values):
             phi_vals = compute_phi(x_values, coeffs, 'poly')
             S = sum_of_squares(y_values, phi_vals)
             sigma = std_deviation(y_values, phi_vals)
-            R2 = determination_coefficient(y_values, phi_vals)
-            r = correlation_coefficient(x_values, y_values)
+            R2 = determination_coeff(y_values, phi_vals)
+            r = correlation_coeff(x_values, y_values)
 
             formula = f"y = {format_number(coeffs[0])}"
             for i in range(1, len(coeffs)):
@@ -75,8 +93,8 @@ def compute_all_approximations(x_values, y_values):
             phi_vals = compute_phi(x_values, coeffs, 'poly')
             S = sum_of_squares(y_values, phi_vals)
             sigma = std_deviation(y_values, phi_vals)
-            R2 = determination_coefficient(y_values, phi_vals)
-            r = correlation_coefficient(x_values, y_values)
+            R2 = determination_coeff(y_values, phi_vals)
+            r = correlation_coeff(x_values, y_values)
 
             formula = f"y = {format_number(coeffs[0])}"
             for i in range(1, len(coeffs)):
@@ -106,8 +124,8 @@ def compute_all_approximations(x_values, y_values):
             phi_vals = compute_phi(x_values, None, 'exp', a, b)
             S = sum_of_squares(y_values, phi_vals)
             sigma = std_deviation(y_values, phi_vals)
-            R2 = determination_coefficient(y_values, phi_vals)
-            r = correlation_coefficient(x_values, y_values)
+            R2 = determination_coeff(y_values, phi_vals)
+            r = correlation_coeff(x_values, y_values)
 
             approximations.append({
                 'name': 'Экспоненциальная',
@@ -129,8 +147,8 @@ def compute_all_approximations(x_values, y_values):
             phi_vals = compute_phi(x_values, None, 'log', a, b)
             S = sum_of_squares(y_values, phi_vals)
             sigma = std_deviation(y_values, phi_vals)
-            R2 = determination_coefficient(y_values, phi_vals)
-            r = correlation_coefficient(x_values, y_values)
+            R2 = determination_coeff(y_values, phi_vals)
+            r = correlation_coeff(x_values, y_values)
 
             approximations.append({
                 'name': 'Логарифмическая',
@@ -152,8 +170,8 @@ def compute_all_approximations(x_values, y_values):
             phi_vals = compute_phi(x_values, None, 'power', a, b)
             S = sum_of_squares(y_values, phi_vals)
             sigma = std_deviation(y_values, phi_vals)
-            R2 = determination_coefficient(y_values, phi_vals)
-            r = correlation_coefficient(x_values, y_values)
+            R2 = determination_coeff(y_values, phi_vals)
+            r = correlation_coeff(x_values, y_values)
 
             approximations.append({
                 'name': 'Степенная',
@@ -181,7 +199,6 @@ def find_best_approximation(approximations, r_threshold=R_THRESHOLD):
         return None
 
     linear = next((a for a in approximations if a['name'] == 'Линейная'), None)
-
     if linear and abs(linear.get('r', 0)) > r_threshold:
         return linear
 

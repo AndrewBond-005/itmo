@@ -1,15 +1,27 @@
 import math
 def sx(lst):
-    return sum(lst)
+    s= 0
+    for i in range(len(lst)):
+        s= s+ lst[i]
+    return s
 
 def sxx(lst):
-    return sum(elem * elem for elem in lst)
+    s= 0
+    for i in range(len(lst)):
+        s= s+ lst[i] * lst[i]
+    return s
 
 def sxy(x, y):
-    return sum(x[i] * y[i] for i in range(len(x)))
+    s= 0
+    for i in range(len(x)):
+        s= s+ x[i] * y[i]
+    return s
 
 def sxn(lst, power):
-    return sum(elem ** power for elem in lst)
+    s = 0
+    for i in range(len(lst)):
+        s= s+ lst[i] ** power
+    return s
 
 def polynomial(x, coeffs):
     result = 0
@@ -44,7 +56,7 @@ def std_deviation(y, phi_vals):
     S = sum_of_squares(y, phi_vals)
     return math.sqrt(S / n)
 
-def determination_coefficient(y, phi_vals):
+def determination_coeff(y, phi_vals):
     n = len(y)
     y_mean = sx(y) / n
     ss_res = sum_of_squares(y, phi_vals)
@@ -53,7 +65,7 @@ def determination_coefficient(y, phi_vals):
         return 1.0
     return 1 - ss_res / ss_tot
 
-def correlation_coefficient(x, y):
+def correlation_coeff(x, y):
     n = len(x)
     sum_x = sx(x)
     sum_y = sx(y)
