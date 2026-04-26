@@ -18,7 +18,6 @@ def get_y():
     return _state["y"].copy()
 
 def add_point(x=None, y=None):
-    print(f"Добавляем точку: x={x}, y={y}")  # Отладка
     _state["x"].append(x)
     _state["y"].append(y)
     notify()
@@ -43,10 +42,3 @@ def clear_all():
     _state["x"].clear()
     _state["y"].clear()
     notify()
-
-def init_default_rows(count=DEFAULT_ROWS):
-    _state["x"] = [None] * count
-    _state["y"] = [None] * count
-    notify()
-
-init_default_rows()
