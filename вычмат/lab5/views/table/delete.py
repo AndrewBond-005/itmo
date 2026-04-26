@@ -1,5 +1,5 @@
 import tkinter as tk
-from utils.const import DELETE_BUTTON_TEXT, RED, CELL_FONT_SIZE
+from utils.const import DELETE_BUTTON_TEXT, CELL_FONT_SIZE
 
 class DeleteButton(tk.Button):
     def __init__(self, parent, core_module, row_index, **kwargs):

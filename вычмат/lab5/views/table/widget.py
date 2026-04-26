@@ -18,7 +18,10 @@ class DataTable(ttk.Frame):
         self.entries = []
         self._create_table()
         self.core.subscribe(self._refresh_from_core)
-        # Инициализируем 10 пустыми строками
+
+        # Привязываем событие клика вне таблицы для снятия фокуса
+        self.master.bind("<Button-1>", self._on_click_outside)
+
         if len(self.core.get_x()) == 0:
             for _ in range(DEFAULT_ROWS):
                 self.core.add_point(None, None)
@@ -44,8 +47,14 @@ class DataTable(ttk.Frame):
         self.canvas.pack(side="left", fill=tk.BOTH, expand=True)
         scrollbar.pack(side="right", fill="y")
 
-        self._bind_scroll_events(self.canvas)
-        self._bind_scroll_events(scrollbar)
+        # Прокрутка для canvas и scrollbar
+        self.canvas.bind("<MouseWheel>", self._on_mousewheel)
+        scrollbar.bind("<MouseWheel>", self._on_mousewheel)
+
+        # Чтобы таблица получала фокус и снимала его с полей ввода
+        self.canvas.bind("<Button-1>", self._focus_out)
+        self.scrollable_frame.bind("<Button-1>", self._focus_out)
+        table_frame.bind("<Button-1>", self._focus_out)
 
         # Заголовки
         headers = ["№", "x", "y", ""]
@@ -64,19 +73,57 @@ class DataTable(ttk.Frame):
         self.add_button = AddRowButton(self, self.core, self)
         self.add_button.pack(pady=5)
 
-    def _bind_scroll_events(self, widget):
-        widget.bind("<MouseWheel>", self._on_mousewheel)
-        widget.bind("<Button-4>", self._on_mousewheel)
-        widget.bind("<Button-5>", self._on_mousewheel)
-
     def _on_mousewheel(self, event):
-        if event.num == 4 or (hasattr(event, 'delta') and event.delta > 0):
-            self.canvas.yview_scroll(-1, "units")
-        elif event.num == 5 or (hasattr(event, 'delta') and event.delta < 0):
-            self.canvas.yview_scroll(1, "units")
-        else:
-            self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        """Обработчик прокрутки - работает откуда угодно в таблице"""
+        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
         return "break"
+
+    def _focus_out(self, event):
+        """Снимает фокус с любого Entry в таблице"""
+        self.focus_set()
+
+    def _on_click_outside(self, event):
+        """Клик вне таблицы - проверяем и сохраняем последнее редактирование"""
+        widget = event.widget
+        in_table = False
+        while widget:
+            if widget == self or widget == self.canvas or widget == self.scrollable_frame:
+                in_table = True
+                break
+            widget = widget.master
+
+        if not in_table:
+            for entry in self.entries:
+                if entry['x_entry'].focus_get() == entry['x_entry']:
+                    self._force_validate(entry['row_index'], 0)
+                if entry['y_entry'].focus_get() == entry['y_entry']:
+                    self._force_validate(entry['row_index'], 1)
+            self.focus_set()
+
+    def _force_validate(self, row_index, col):
+        """Принудительно валидирует и сохраняет значение Entry"""
+        entry = self.entries[row_index]['x_entry'] if col == 0 else self.entries[row_index]['y_entry']
+        val = entry.get().strip().replace(",", ".")
+        if val:
+            try:
+                num = float(val)
+                entry.delete(0, tk.END)
+                entry.insert(0, f"{num:.3f}")
+                if col == 0:
+                    self.core.update_x(row_index, num)
+                else:
+                    self.core.update_y(row_index, num)
+            except:
+                entry.delete(0, tk.END)
+                if col == 0:
+                    self.core.update_x(row_index, None)
+                else:
+                    self.core.update_y(row_index, None)
+        else:
+            if col == 0:
+                self.core.update_x(row_index, None)
+            else:
+                self.core.update_y(row_index, None)
 
     def _add_row_widgets(self, row_index, x_val=None, y_val=None):
         row = row_index + 1
@@ -90,12 +137,14 @@ class DataTable(ttk.Frame):
         x_entry.grid(row=row, column=1, sticky="nsew", padx=0, pady=0)
         x_entry.bind("<FocusOut>", lambda e, idx=row_index: self._validate_entry(idx, 0))
         x_entry.bind("<Return>", self._on_enter_pressed)
+        x_entry.bind("<MouseWheel>", self._on_mousewheel)
 
         y_entry = tk.Entry(self.scrollable_frame, relief="solid", borderwidth=1, justify='center',
                            font=('Arial', CELL_FONT_SIZE), width=CELL_WIDTH)
         y_entry.grid(row=row, column=2, sticky="nsew", padx=0, pady=0)
         y_entry.bind("<FocusOut>", lambda e, idx=row_index: self._validate_entry(idx, 1))
         y_entry.bind("<Return>", self._on_enter_pressed)
+        y_entry.bind("<MouseWheel>", self._on_mousewheel)
 
         del_btn = DeleteButton(self.scrollable_frame, self.core, row_index)
         del_btn.grid(row=row, column=3, sticky="nsew", padx=0, pady=0)

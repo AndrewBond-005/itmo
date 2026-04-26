@@ -10,6 +10,5 @@ class ClearAllButton(tk.Button):
 
     def _clear_all(self):
         self.core.clear_all()
-        # Создаём 10 пустых строк
         for _ in range(DEFAULT_ROWS):
             self.core.add_point(None, None)
