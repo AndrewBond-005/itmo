@@ -18,6 +18,7 @@ def get_y():
     return _state["y"].copy()
 
 def add_point(x=None, y=None):
+    print(f"Добавляем точку: x={x}, y={y}")  # Отладка
     _state["x"].append(x)
     _state["y"].append(y)
     notify()
