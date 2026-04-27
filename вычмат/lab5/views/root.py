@@ -4,6 +4,7 @@ from utils.const import LEFT_PANEL_PERCENT
 from views.left import LeftPanel
 from views.right import RightPanel
 
+
 class RootWindow:
     def __init__(self):
         self.root = tk.Tk()
@@ -16,10 +17,14 @@ class RootWindow:
     def _create_main_paned(self):
         self.main_paned = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
         self.main_paned.pack(fill=tk.BOTH, expand=True)
+
         self.left_panel = LeftPanel(self.main_paned, self.root)
         self.main_paned.add(self.left_panel, weight=LEFT_PANEL_PERCENT)
-        self.right_panel = RightPanel(self.main_paned)
+
+        # Передаём control_frame (который внутри left_panel) в правую панель
+        self.right_panel = RightPanel(self.main_paned, self.left_panel.control_frame)
         self.main_paned.add(self.right_panel, weight=100 - LEFT_PANEL_PERCENT)
+
         self.root.after(100, self._set_initial_sash)
 
     def _set_initial_sash(self):

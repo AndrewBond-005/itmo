@@ -12,9 +12,11 @@ class LeftPanel(ttk.PanedWindow):
     def __init__(self, parent, root_window, **kwargs):
         super().__init__(parent, orient=tk.VERTICAL, **kwargs)
         self.root_window = root_window
+        print("[LeftPanel] Инициализация...")
         self._create_panes()
 
     def _create_panes(self):
+        print("[LeftPanel] Создание панелей...")
         self.top_paned = ttk.PanedWindow(self, orient=tk.HORIZONTAL)
         self.add(self.top_paned, weight=TOP_PANEL_PERCENT)
 
@@ -31,3 +33,4 @@ class LeftPanel(ttk.PanedWindow):
         bottom_label.pack(expand=True)
 
         self.table = DataTable(self.table_frame, core)
+        print("[LeftPanel] Создание панелей завершено")
