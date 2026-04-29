@@ -2,6 +2,10 @@ _state = {"x": [], "y": []}
 _callbacks = []
 _auto_update = True
 
+# Вычисленные точки
+_compute_x = None
+_computed_values = {}  # {"lagrange": y, "newton_div": y, "newton_fin": y}
+
 
 def subscribe(callback):
     if callback not in _callbacks:
@@ -69,6 +73,7 @@ def find_nearest(x_click, y_click):
 def add_point(x=None, y=None):
     _state["x"].append(x)
     _state["y"].append(y)
+    clear_computed_points()
     notify()
 
 
@@ -76,22 +81,49 @@ def delete_point(index):
     if 0 <= index < len(_state["x"]):
         del _state["x"][index]
         del _state["y"][index]
+        clear_computed_points()
         notify()
 
 
 def update_x(index, x):
     if 0 <= index < len(_state["x"]):
         _state["x"][index] = x
+        clear_computed_points()
         notify()
 
 
 def update_y(index, y):
     if 0 <= index < len(_state["y"]):
         _state["y"][index] = y
+        clear_computed_points()
         notify()
 
 
 def clear_all():
     _state["x"].clear()
     _state["y"].clear()
+    clear_computed_points()
+    notify()
+
+
+# Новые функции для вычисленных точек
+def set_computed_points(x, values):
+    global _compute_x, _computed_values
+    _compute_x = x
+    _computed_values = values.copy()
+    notify()
+
+
+def get_compute_x():
+    return _compute_x
+
+
+def get_computed_values():
+    return _computed_values.copy()
+
+
+def clear_computed_points():
+    global _compute_x, _computed_values
+    _compute_x = None
+    _computed_values = {}
     notify()

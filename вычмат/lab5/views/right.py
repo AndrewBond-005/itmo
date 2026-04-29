@@ -12,3 +12,7 @@ class RightPanel(ttk.Frame):
         # Создаём график
         self.plot_canvas = PlotCanvas(self, draw_mode_button)
         self.plot_canvas.pack(fill="both", expand=True)
+
+        # Передаём ссылки на виджеты для СКМ
+        self.plot_canvas.set_x_input(control_container.get_x_input())
+        self.plot_canvas.set_compute_button(control_container.get_compute_button())

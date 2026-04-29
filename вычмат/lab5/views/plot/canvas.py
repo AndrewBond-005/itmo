@@ -17,8 +17,10 @@ class PlotCanvas(tk.Frame):
         self.y_range = y_range
         self.point_mode = False
         self.table = None
+        self.x_input = None
+        self.compute_button = None
 
-        # Создаём фрейм для тулбара (как в твоём graph_widget.py)
+        # Создаём фрейм для тулбара
         self.toolbar_frame = tk.Frame(self)
         self.toolbar_frame.pack(side=tk.TOP, fill=tk.X)
 
@@ -40,7 +42,7 @@ class PlotCanvas(tk.Frame):
         self.canvas = FigureCanvasTkAgg(self.figure, self)
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
-        # Добавляем тулбар КАК В ТВОЁМ КОДЕ
+        # Добавляем тулбар
         self.toolbar = NavigationToolbar2Tk(self.canvas, self.toolbar_frame)
         self.toolbar.update()
 
@@ -63,13 +65,21 @@ class PlotCanvas(tk.Frame):
         self.point_mode = False
         self.table = None
 
+    def set_x_input(self, x_input):
+        """Устанавливает ссылку на поле ввода x для СКМ"""
+        self.x_input = x_input
+
+    def set_compute_button(self, compute_button):
+        """Устанавливает ссылку на кнопку вычисления для СКМ"""
+        self.compute_button = compute_button
+
     def _on_click(self, event):
         if not self.draw_mode_button.is_active():
             return
         if event.inaxes != self.axes:
             return
 
-        # Проверка клика по тулбару (как в твоём коде)
+        # Проверка клика по тулбару
         try:
             toolbar_widget = self.toolbar_frame
             widget_under_cursor = toolbar_widget.winfo_containing(event.x, event.y)
@@ -82,12 +92,21 @@ class PlotCanvas(tk.Frame):
         except:
             pass
 
-        if event.button == 1:
+        if event.button == 1:  # ЛКМ - добавление точки
             self._add_point(event.xdata, event.ydata)
-        elif event.button == 3:
+        elif event.button == 3:  # ПКМ - удаление ближайшей точки
             self._delete_nearest(event.xdata, event.ydata)
-        elif event.button == 2:
-            print(f"Выбрана абсцисса: {event.xdata:.3f}")
+        elif event.button == 2:  # СКМ - выбор абсциссы
+            x_click = event.xdata
+            print(f"СКМ: выбрана абсцисса {x_click:.6f}")
+
+            # Устанавливаем значение в поле ввода x
+            if self.x_input:
+                self.x_input.set_value(x_click)
+
+            # Автоматически вызываем вычисление
+            if self.compute_button:
+                self.compute_button._compute()
 
     def _on_scroll(self, event):
         if not self.draw_mode_button.is_active():
@@ -137,64 +156,44 @@ class PlotCanvas(tk.Frame):
 
         return min_idx, min_dist
 
-    def refresh(self):
-        """Перерисовка графика"""
-        # Очищаем оси НО СОХРАНЯЕМ ГРАНИЦЫ
-        xlim = self.axes.get_xlim()
-        ylim = self.axes.get_ylim()
+    def _is_method_active(self, method_name):
+        """Проверяет, активен ли метод"""
+        if method_name == "lagrange":
+            return methods_state.is_lagrange_enabled()
+        elif method_name == "newton_div":
+            return methods_state.is_newton_div_enabled()
+        elif method_name == "newton_fin":
+            return methods_state.is_newton_fin_enabled()
+        return False
 
-        self.axes.clear()
+    def _get_method_color(self, method_name):
+        """Возвращает цвет для метода"""
+        if method_name == "lagrange":
+            return COLOR_LAGRANGE
+        elif method_name == "newton_div":
+            return COLOR_NEWTON_DIV
+        elif method_name == "newton_fin":
+            return COLOR_NEWTON_FIN
+        return "black"
 
-        # Восстанавливаем базовые элементы
-        self.axes.set_xlim(xlim)
-        self.axes.set_ylim(ylim)
-        self.axes.set_xlabel("x")
-        self.axes.set_ylabel("y")
-        self.axes.set_title("Узлы интерполяции")
-        self.axes.grid(True, linestyle='--', alpha=0.7)
-        self.axes.axhline(y=0, color='black', linewidth=1.5)
-        self.axes.axvline(x=0, color='black', linewidth=1.5)
+    def _draw_computed_points(self):
+        """Рисует вычисленные точки"""
+        x = core.get_compute_x()
+        if x is None:
+            return
 
-        # Рисуем линии интерполяции
-        x_sorted, y_sorted = lines.get_sorted_valid_nodes(core)
-        if len(x_sorted) >= 2:
-            x_grid = lines.build_grid(x_sorted)
+        values = core.get_computed_values()
+        if not values:
+            return
 
-            if methods_state.is_lagrange_enabled():
-                y_grid = lines.compute_lagrange_line(x_grid, x_sorted, y_sorted)
-                if y_grid:
-                    self.axes.plot(x_grid, y_grid, color=COLOR_LAGRANGE,
-                                   linewidth=LINE_WIDTH, label="Лагранж")
-
-            if methods_state.is_newton_div_enabled():
-                y_grid = lines.compute_newton_div_line(x_grid, x_sorted, y_sorted)
-                if y_grid:
-                    self.axes.plot(x_grid, y_grid, color=COLOR_NEWTON_DIV,
-                                   linewidth=LINE_WIDTH, label="Ньютон (разд)")
-
-            if methods_state.is_newton_fin_enabled():
-                y_grid = lines.compute_newton_fin_line(x_grid, x_sorted, y_sorted)
-                if y_grid:
-                    self.axes.plot(x_grid, y_grid, color=COLOR_NEWTON_FIN,
-                                   linewidth=LINE_WIDTH, label="Ньютон (кон)")
-
-            self.axes.legend(loc='upper left')
-
-        # Рисуем точки
-        points_x, points_y = [], []
-        for x, y in zip(core.get_x(), core.get_y()):
-            if x is not None and y is not None:
-                points_x.append(x)
-                points_y.append(y)
-
-        if points_x:
-            self.axes.scatter(points_x, points_y, color='blue', s=40, zorder=5)
-
-        # Обновляем холст
-        self.canvas.draw()
-
-        # Возвращаем фокус на график
-        self.canvas.get_tk_widget().focus_set()
+        for method_name, y in values.items():
+            if y is None:
+                continue
+            if not self._is_method_active(method_name):
+                continue
+            color = self._get_method_color(method_name)
+            self.axes.plot(x, y, marker='*', color=color, markersize=12,
+                           linestyle='none', zorder=6)
 
     def refresh(self):
         """Перерисовка графика"""
@@ -251,5 +250,11 @@ class PlotCanvas(tk.Frame):
         if points_x:
             self.axes.scatter(points_x, points_y, color='blue', s=40, zorder=5)
 
+        # Рисуем вычисленные точки
+        self._draw_computed_points()
+
         # Обновляем холст
         self.canvas.draw()
+
+        # Возвращаем фокус на график
+        self.canvas.get_tk_widget().focus_set()
