@@ -195,3 +195,61 @@ class PlotCanvas(tk.Frame):
 
         # Возвращаем фокус на график
         self.canvas.get_tk_widget().focus_set()
+
+    def refresh(self):
+        """Перерисовка графика"""
+        # Сохраняем границы
+        xlim = self.axes.get_xlim()
+        ylim = self.axes.get_ylim()
+
+        # Очищаем оси
+        self.axes.clear()
+
+        # Восстанавливаем базовые элементы
+        self.axes.set_xlim(xlim)
+        self.axes.set_ylim(ylim)
+        self.axes.set_xlabel("x")
+        self.axes.set_ylabel("y")
+        self.axes.set_title("Узлы интерполяции")
+        self.axes.grid(True, linestyle='--', alpha=0.7)
+        self.axes.axhline(y=0, color='black', linewidth=1.5)
+        self.axes.axvline(x=0, color='black', linewidth=1.5)
+
+        # Рисуем линии интерполяции ТОЛЬКО если включено автообновление
+        if core.get_auto_update():
+            x_sorted, y_sorted = lines.get_sorted_valid_nodes(core)
+            if len(x_sorted) >= 2:
+                x_grid = lines.build_grid(x_sorted)
+
+                if methods_state.is_lagrange_enabled():
+                    y_grid = lines.compute_lagrange_line(x_grid, x_sorted, y_sorted)
+                    if y_grid:
+                        self.axes.plot(x_grid, y_grid, color=COLOR_LAGRANGE,
+                                       linewidth=LINE_WIDTH, label="Лагранж")
+
+                if methods_state.is_newton_div_enabled():
+                    y_grid = lines.compute_newton_div_line(x_grid, x_sorted, y_sorted)
+                    if y_grid:
+                        self.axes.plot(x_grid, y_grid, color=COLOR_NEWTON_DIV,
+                                       linewidth=LINE_WIDTH, label="Ньютон (разд)")
+
+                if methods_state.is_newton_fin_enabled():
+                    y_grid = lines.compute_newton_fin_line(x_grid, x_sorted, y_sorted)
+                    if y_grid:
+                        self.axes.plot(x_grid, y_grid, color=COLOR_NEWTON_FIN,
+                                       linewidth=LINE_WIDTH, label="Ньютон (кон)")
+
+                self.axes.legend(loc='upper left')
+
+        # Рисуем точки (всегда)
+        points_x, points_y = [], []
+        for x, y in zip(core.get_x(), core.get_y()):
+            if x is not None and y is not None:
+                points_x.append(x)
+                points_y.append(y)
+
+        if points_x:
+            self.axes.scatter(points_x, points_y, color='blue', s=40, zorder=5)
+
+        # Обновляем холст
+        self.canvas.draw()

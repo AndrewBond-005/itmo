@@ -1,5 +1,6 @@
 _state = {"x": [], "y": []}
 _callbacks = []
+_auto_update = True
 
 
 def subscribe(callback):
@@ -12,6 +13,16 @@ def notify():
         callback()
 
 
+def get_auto_update():
+    return _auto_update
+
+
+def set_auto_update(value):
+    global _auto_update
+    _auto_update = value
+    notify()
+
+
 def get_x():
     return _state["x"].copy()
 
@@ -21,14 +32,12 @@ def get_y():
 
 
 def get_point(index):
-    """Возвращает точку по индексу (x, y) или (None, None) если индекс некорректен"""
     if 0 <= index < len(_state["x"]):
         return _state["x"][index], _state["y"][index]
     return None, None
 
 
 def get_points():
-    """Возвращает список всех валидных точек (x, y) где оба значения не None"""
     points = []
     for x, y in zip(_state["x"], _state["y"]):
         if x is not None and y is not None:
@@ -37,7 +46,6 @@ def get_points():
 
 
 def find_nearest(x_click, y_click):
-    """Находит индекс ближайшего узла по евклидову расстоянию"""
     min_dist_sq = float('inf')
     min_idx = -1
 

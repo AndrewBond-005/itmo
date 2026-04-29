@@ -4,6 +4,7 @@ from views.control.buttons.draw_mode import DrawModeButton
 from views.control.buttons.method_lagrange import LagrangeButton
 from views.control.buttons.method_newton_div import NewtonDivButton
 from views.control.buttons.method_newton_fin import NewtonFinButton
+from views.control.buttons.auto_update import AutoUpdateButton
 
 
 class ControlContainer(ttk.Frame):
@@ -29,6 +30,10 @@ class ControlContainer(ttk.Frame):
         self.draw_mode_btn = DrawModeButton(self)
         self.draw_mode_btn.pack(pady=10, padx=10, anchor="center")
 
+        # Кнопка автообновления
+        self.auto_update_btn = AutoUpdateButton(self)
+        self.auto_update_btn.pack(pady=5, padx=10, anchor="center")
+
         # Кнопка выхода
         exit_btn = ExitButton(self, self.root_window)
         exit_btn.pack(pady=10, padx=10, anchor="center")
@@ -36,5 +41,4 @@ class ControlContainer(ttk.Frame):
         ttk.Frame(self).pack(expand=True)
 
     def get_draw_mode_button(self):
-        """Возвращает кнопку режима рисования для передачи в график"""
         return self.draw_mode_btn

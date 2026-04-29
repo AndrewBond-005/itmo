@@ -6,7 +6,9 @@ from utils.const import (
 )
 from views.control.container import ControlContainer
 from views.table.widget import DataTable
+from views.diffs import DiffsContainer
 import data.core as core
+
 
 class LeftPanel(ttk.PanedWindow):
     def __init__(self, parent, root_window, **kwargs):
@@ -26,11 +28,13 @@ class LeftPanel(ttk.PanedWindow):
         self.control_frame = ControlContainer(self.top_paned, self.root_window, relief="sunken", borderwidth=1)
         self.top_paned.add(self.control_frame, weight=INNER_RIGHT_PERCENT)
 
-        self.bottom_frame = ttk.Frame(self, relief="sunken", borderwidth=1)
+        # Нижняя панель для таблиц разностей
+        self.bottom_frame = ttk.Frame(self, relief="groove", borderwidth=2)
         self.add(self.bottom_frame, weight=BOTTOM_PANEL_PERCENT)
 
-        bottom_label = ttk.Label(self.bottom_frame, text="Здесь будут результаты", font=("Arial", 12))
-        bottom_label.pack(expand=True)
+        # Добавляем контейнер таблиц разностей с заполнением
+        self.diffs_container = DiffsContainer(self.bottom_frame)
+        self.diffs_container.pack(fill=tk.BOTH, expand=True, padx=2, pady=2)
 
         self.table = DataTable(self.table_frame, core)
         print("[LeftPanel] Создание панелей завершено")
