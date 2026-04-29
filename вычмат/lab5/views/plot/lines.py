@@ -3,6 +3,7 @@ import calc.lagrange as lagrange
 import calc.newton_divided as newton_div
 import calc.newton_finite as newton_fin
 from utils.const import GRID_POINTS
+import math
 
 
 def build_grid(x_sorted):
@@ -13,7 +14,7 @@ def build_grid(x_sorted):
         x_sorted: отсортированный список x-координат узлов
 
     Returns:
-        list: сетка x-координат (200 точек)
+        list: сетка x-координат
     """
     if len(x_sorted) < 2:
         return []
@@ -46,6 +47,11 @@ def get_sorted_valid_nodes(core):
     # Сортируем по x
     valid.sort(key=lambda p: p[0])
 
+    # Проверяем на дублирующиеся x
+    for i in range(len(valid) - 1):
+        if valid[i][0] == valid[i + 1][0]:
+            print(f"[Lines] Предупреждение: дублирующиеся x = {valid[i][0]}, интерполяция может быть некорректной")
+
     if not valid:
         return [], []
 
@@ -66,8 +72,13 @@ def compute_lagrange_line(x_grid, x_sorted, y_sorted):
     for x in x_grid:
         try:
             y = lagrange.interpolate(x, x_sorted, y_sorted)
-            y_grid.append(y)
-        except:
+            # Проверка на nan
+            if math.isnan(y):
+                y_grid.append(float('nan'))
+            else:
+                y_grid.append(y)
+        except Exception as e:
+            print(f"[Lines] Ошибка Лагранжа: {e}")
             y_grid.append(float('nan'))
 
     return y_grid
@@ -85,12 +96,20 @@ def compute_newton_div_line(x_grid, x_sorted, y_sorted):
 
     try:
         coeffs = newton_div.build_coefficients(x_sorted, y_sorted)
+        # Проверка коэффициентов на nan
+        if any(math.isnan(c) for c in coeffs):
+            return [float('nan')] * len(x_grid)
+
         y_grid = []
         for x in x_grid:
             y = newton_div.interpolate(x, x_sorted, coeffs)
-            y_grid.append(y)
+            if math.isnan(y):
+                y_grid.append(float('nan'))
+            else:
+                y_grid.append(y)
         return y_grid
-    except:
+    except Exception as e:
+        print(f"[Lines] Ошибка Ньютона (разд): {e}")
         return [float('nan')] * len(x_grid)
 
 
@@ -116,9 +135,11 @@ def compute_newton_fin_line(x_grid, x_sorted, y_sorted):
         y_grid = []
         for x in x_grid:
             y = newton_fin.interpolate(x, x_sorted, y_sorted, h, coeffs)
-            if y is None:
-                return None
-            y_grid.append(y)
+            if y is None or math.isnan(y):
+                y_grid.append(float('nan'))
+            else:
+                y_grid.append(y)
         return y_grid
-    except:
+    except Exception as e:
+        print(f"[Lines] Ошибка Ньютона (кон): {e}")
         return None
