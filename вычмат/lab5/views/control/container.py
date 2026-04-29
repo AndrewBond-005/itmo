@@ -85,6 +85,10 @@ class ControlContainer(ttk.Frame):
         exit_btn = ExitButton(self, self.root_window)
         exit_btn.pack(pady=2)
 
+        # <---- ВОТ ЭТИ ДВЕ СТРОКИ ДОБАВЬ В КОНЕЦ ----->
+        self.pack_propagate(False)  # Запрещаем автоматическое сжатие
+        self.pack(fill=tk.BOTH, expand=True)  # Принудительно растягиваем
+
     def get_draw_mode_button(self):
         return self.draw_mode_btn
 
