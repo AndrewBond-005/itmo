@@ -1,21 +1,17 @@
+import tkinter as tk
 from tkinter import ttk
 
 
-class DrawModeButton(ttk.Button):
+class DrawModeButton(ttk.Checkbutton):
     def __init__(self, parent, **kwargs):
         self.mode_on = False
-        super().__init__(parent, text="✎ Режим рисования", command=self._toggle, **kwargs)
-        self._update_style()
+        self.state_var = tk.BooleanVar(value=False)
+        super().__init__(parent, text=" Рисовать", variable=self.state_var,
+                         command=self._toggle, **kwargs)
 
     def _toggle(self):
-        self.mode_on = not self.mode_on
-        self._update_style()
-
-    def _update_style(self):
-        if self.mode_on:
-            self.configure(text="✓ Режим рисования (вкл)")
-        else:
-            self.configure(text="✎ Режим рисования (выкл)")
+        self.mode_on = self.state_var.get()
+        print(f"[DrawModeButton] Режим рисования {'ВКЛЮЧЁН' if self.mode_on else 'ВЫКЛЮЧЁН'}")
 
     def is_active(self):
         return self.mode_on
