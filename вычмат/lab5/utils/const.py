@@ -46,3 +46,7 @@ COLOR_NEWTON_FIN = "orange"
 LINE_WIDTH = 1.5
 LINE_STYLE = "-"  # сплошная
 GRID_POINTS = 200  # количество точек для построения линии
+
+# Окно помощи
+HELP_WINDOW_TITLE = "Помощь - Интерполяция функций"
+HELP_WINDOW_SIZE = "550x450"
