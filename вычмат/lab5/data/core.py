@@ -1,6 +1,7 @@
 _state = {"x": [], "y": []}
 _callbacks = []
 _auto_update = True
+_silent = False  # флаг тихого режима
 
 # Вычисленные точки
 _compute_x = None
@@ -13,8 +14,22 @@ def subscribe(callback):
 
 
 def notify():
-    for callback in _callbacks:
-        callback()
+    if not _silent:  # не уведомляем в тихом режиме
+        for callback in _callbacks:
+            callback()
+
+
+def begin_silent():
+    """Начинаем массовые изменения (без уведомлений)"""
+    global _silent
+    _silent = True
+
+
+def end_silent():
+    """Заканчиваем массовые изменения и обновляем один раз"""
+    global _silent
+    _silent = False
+    notify()
 
 
 def get_auto_update():
@@ -74,7 +89,8 @@ def add_point(x=None, y=None):
     _state["x"].append(x)
     _state["y"].append(y)
     clear_computed_points()
-    notify()
+    if not _silent:
+        notify()
 
 
 def delete_point(index):
@@ -103,7 +119,18 @@ def clear_all():
     _state["x"].clear()
     _state["y"].clear()
     clear_computed_points()
-    notify()
+    if not _silent:
+        notify()
+
+
+def set_points(points):
+    """Быстрая замена всех точек - одно уведомление"""
+    global _state
+    begin_silent()
+    _state["x"] = [p[0] for p in points]
+    _state["y"] = [p[1] for p in points]
+    clear_computed_points()
+    end_silent()
 
 
 # Новые функции для вычисленных точек
@@ -126,4 +153,3 @@ def clear_computed_points():
     global _compute_x, _computed_values
     _compute_x = None
     _computed_values = {}
-    notify()

@@ -69,12 +69,7 @@ class GenerateButton(ttk.Button):
                 self.message_area.add_message(f"Ошибка вычисления f({x:.3f}): {e}", "error")
                 return
 
-        # Очищаем таблицу и добавляем точки
-        core.clear_all()
-        for x, y in points:
-            core.add_point(x, y)
-
-        # Очищаем вычисленные точки
-        core.clear_computed_points()
+        # БЫСТРОЕ ДОБАВЛЕНИЕ - одним вызовом!
+        core.set_points(points)
 
         self.message_area.add_message(f"Сгенерировано {len(points)} точек из {n} на интервале [{a}, {b}]", "info")
