@@ -21,19 +21,18 @@ def check_uniform_step(x_sorted):
     return True, h
 
 
-def build_coefficients(y_sorted, h):
+def build_forward_coefficients(y_sorted, h):
     """
-    Вычисление конечных разностей для интерполяции Ньютона
+    Вычисление конечных разностей для интерполяции Ньютона ВПЕРЁД
 
     Args:
         y_sorted: отсортированный список y-координат узлов
         h: шаг сетки
 
     Returns:
-        list: коэффициенты (конечные разности ∆y0, ∆²y0, ...)
+        list: коэффициенты Δy0, Δ²y0, Δ³y0...
     """
     n = len(y_sorted)
-    # Создаём таблицу конечных разностей
     diff_table = []
     current = y_sorted.copy()
     diff_table.append(current)
@@ -49,19 +48,58 @@ def build_coefficients(y_sorted, h):
     return [diff_table[i][0] for i in range(n)]
 
 
-def interpolate(x, x_sorted, y_sorted, h, coeffs):
+def build_backward_coefficients(y_sorted, h):
+    """
+    Вычисление конечных разностей для интерполяции Ньютона НАЗАД
+
+    Args:
+        y_sorted: отсортированный список y-координат узлов
+        h: шаг сетки
+
+    Returns:
+        list: коэффициенты Δy_{n-1}, Δ²y_{n-2}, Δ³y_{n-3}...
+    """
+    n = len(y_sorted)
+
+    # Создаём таблицу конечных разностей (обычную)
+    diff_table = []
+    current = y_sorted.copy()
+    diff_table.append(current)
+
+    for order in range(1, n):
+        next_row = []
+        for i in range(len(current) - 1):
+            next_row.append(current[i + 1] - current[i])
+        diff_table.append(next_row)
+        current = next_row
+
+    # Для формулы назад берём последние элементы каждого порядка
+    # Δy_{n-1}, Δ²y_{n-2}, Δ³y_{n-3}...
+    coeffs = []
+    for order in range(n):
+        idx = n - 1 - order
+        if idx >= 0 and order < len(diff_table[order]):
+            coeffs.append(diff_table[order][idx])
+        else:
+            coeffs.append(0)
+
+    return coeffs
+
+
+def interpolate(x, x_sorted, y_sorted, h, coeffs_forward):
     """
     Интерполяция многочленом Ньютона (конечные разности)
+    Автоматический выбор формулы вперёд/назад
 
     Args:
         x: точка, в которой вычисляется значение
         x_sorted: отсортированный список x-координат узлов
         y_sorted: отсортированный список y-координат узлов
         h: шаг сетки
-        coeffs: коэффициенты (конечные разности)
+        coeffs_forward: коэффициенты для формулы вперёд
 
     Returns:
-        float: интерполированное значение или None (если шаг неравномерный)
+        float: интерполированное значение
     """
     # Проверяем равномерность шага
     is_uniform, _ = check_uniform_step(x_sorted)
@@ -70,39 +108,33 @@ def interpolate(x, x_sorted, y_sorted, h, coeffs):
 
     n = len(x_sorted)
 
-    # Выбираем начальную точку (ближайшую к x)
-    if x <= x_sorted[n // 2]:
-        # Интерполяция вперёд
+    # Определяем, где находится x относительно узлов
+    # Если x ближе к началу (первая половина) - используем формулу вперёд
+    # Если x ближе к концу - используем формулу назад
+
+    x_mid = (x_sorted[0] + x_sorted[-1]) / 2
+
+    if x <= x_mid:
+        # Формула Ньютона ВПЕРЁД
         t = (x - x_sorted[0]) / h
-        result = coeffs[0]
+        result = coeffs_forward[0]
         term = 1.0
+
         for i in range(1, n):
             term *= (t - (i - 1)) / i
-            result += coeffs[i] * term
+            result += coeffs_forward[i] * term
+
+        return result
     else:
-        # Интерполяция назад
+        # Формула Ньютона НАЗАД
+        coeffs_backward = build_backward_coefficients(y_sorted, h)
+
         t = (x - x_sorted[-1]) / h
-        result = y_sorted[-1]
+        result = coeffs_backward[0]  # это y_{n-1}
         term = 1.0
-
-        # Для интерполяции назад нужны конечные разности от конца
-        # Пересчитываем таблицу разностей для конца
-        y_rev = y_sorted[::-1]
-        diff_rev = []
-        current = y_rev.copy()
-        diff_rev.append(current)
-
-        for order in range(1, n):
-            next_row = []
-            for i in range(len(current) - 1):
-                next_row.append(current[i + 1] - current[i])
-            diff_rev.append(next_row)
-            current = next_row
-
-        coeffs_rev = [diff_rev[i][0] for i in range(n)]
 
         for i in range(1, n):
             term *= (t + (i - 1)) / i
-            result += coeffs_rev[i] * term
+            result += coeffs_backward[i] * term
 
-    return result
+        return result

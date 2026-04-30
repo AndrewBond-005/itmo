@@ -164,6 +164,10 @@ class PlotCanvas(tk.Frame):
             return methods_state.is_newton_div_enabled()
         elif method_name == "newton_fin":
             return methods_state.is_newton_fin_enabled()
+        elif method_name == "stirling":
+            return methods_state.is_stirling_enabled()
+        elif method_name == "bessel":
+            return methods_state.is_bessel_enabled()
         return False
 
     def _get_method_color(self, method_name):
@@ -224,23 +228,40 @@ class PlotCanvas(tk.Frame):
             if len(x_sorted) >= 2:
                 x_grid = lines.build_grid(x_sorted)
 
+                # Лагранж
                 if methods_state.is_lagrange_enabled():
                     y_grid = lines.compute_lagrange_line(x_grid, x_sorted, y_sorted)
                     if y_grid:
                         self.axes.plot(x_grid, y_grid, color=COLOR_LAGRANGE,
                                        linewidth=LINE_WIDTH, label="Лагранж")
 
+                # Ньютон (разделённые разности)
                 if methods_state.is_newton_div_enabled():
                     y_grid = lines.compute_newton_div_line(x_grid, x_sorted, y_sorted)
                     if y_grid:
                         self.axes.plot(x_grid, y_grid, color=COLOR_NEWTON_DIV,
                                        linewidth=LINE_WIDTH, label="Ньютон (разд)")
 
+                # Ньютон (конечные разности)
                 if methods_state.is_newton_fin_enabled():
                     y_grid = lines.compute_newton_fin_line(x_grid, x_sorted, y_sorted)
                     if y_grid:
                         self.axes.plot(x_grid, y_grid, color=COLOR_NEWTON_FIN,
                                        linewidth=LINE_WIDTH, label="Ньютон (кон)")
+
+                # Стирлинг
+                if methods_state.is_stirling_enabled():
+                    y_grid = lines.compute_stirling_line(x_grid, x_sorted, y_sorted)
+                    if y_grid:
+                        self.axes.plot(x_grid, y_grid, color=COLOR_STIRLING,
+                                       linewidth=LINE_WIDTH, label="Стирлинг")
+
+                # Бессель
+                if methods_state.is_bessel_enabled():
+                    y_grid = lines.compute_bessel_line(x_grid, x_sorted, y_sorted)
+                    if y_grid:
+                        self.axes.plot(x_grid, y_grid, color=COLOR_BESSEL,
+                                       linewidth=LINE_WIDTH, label="Бессель")
 
                 self.axes.legend(loc='upper left')
 
