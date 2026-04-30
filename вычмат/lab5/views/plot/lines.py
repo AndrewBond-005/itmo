@@ -87,26 +87,11 @@ def compute_newton_fin_line(x_grid, x_sorted, y_sorted):
     if len(x_sorted) < 2:
         return []
 
-    # Проверяем равномерность шага
-    is_uniform, h = newton_fin.check_uniform_step(x_sorted)
-
+    is_uniform, _ = newton_fin.check_uniform_step(x_sorted)
     if not is_uniform:
-        print("[Lines] Предупреждение: Шаг неравномерный, интерполяция конечными разностями невозможна")
         return None
 
-    try:
-        coeffs = newton_fin.build_coefficients(y_sorted, h)
-        y_grid = []
-        for x in x_grid:
-            y = newton_fin.interpolate(x, x_sorted, y_sorted, h, coeffs)
-            if y is None or math.isnan(y):
-                y_grid.append(float('nan'))
-            else:
-                y_grid.append(y)
-        return y_grid
-    except Exception as e:
-        print(f"[Lines] Ошибка Ньютона (кон): {e}")
-        return None
+    return newton_fin.interpolate_line(x_grid, x_sorted, y_sorted)
 
 
 def compute_stirling_line(x_grid, x_sorted, y_sorted):
