@@ -34,36 +34,10 @@ def finite_differences_table(y_sorted):
     return table
 
 
-def bessel_poly(t, k):
-    """
-    Возвращает полином для k-го порядка в формуле Бесселя.
-    k=1: (t - 0.5)
-    k=2: t(t-1)
-    k=3: t(t-1)(t-0.5)
-    k=4: t(t-1)(t²-1)
-    k=5: t(t-1)(t²-1)(t-0.5)
-    k=6: t(t-1)(t²-1)(t²-4)
-    """
-    if k == 1:
-        return t - 0.5
-    if k == 2:
-        return t * (t - 1)
-
-    result = t * (t - 1)
-    m = 1
-    for order in range(3, k + 1):
-        if order % 2 == 1:  # нечётный -> множитель (t - 0.5)
-            result *= (t - 0.5)
-        else:  # чётный -> множитель (t² - m²)
-            result *= (t ** 2 - m ** 2)
-            m += 1
-    return result
-
-
 def bessel(x, x_sorted, y_sorted, h):
     """
     Интерполяция по формуле Бесселя.
-    Возвращает float или None (если невозможно вычислить).
+    Лучше всего работает для чётного числа узлов (4, 6, 8...)
     """
     n = len(x_sorted)
 
@@ -83,7 +57,6 @@ def bessel(x, x_sorted, y_sorted, h):
     # Получаем таблицу разностей
     diffs = finite_differences_table(y_sorted)
 
-    # Проверяем, достаточно ли данных
     if mid + 1 >= len(diffs):
         return None
 
@@ -96,27 +69,61 @@ def bessel(x, x_sorted, y_sorted, h):
     if mid < len(diffs) and 1 < len(diffs[mid]):
         result += (t - 0.5) * diffs[mid][1]
 
-    # Члены высших порядков
+    # Максимальный доступный порядок
     max_order = len(diffs[0]) - 1
 
+    # Члены высших порядков
     for k in range(2, max_order + 1):
-        if k % 2 == 0:  # чётный — с усреднением
-            idx1 = mid - k // 2
-            idx2 = mid - k // 2 + 1
-            if idx1 >= 0 and idx2 < len(diffs):
-                if k < len(diffs[idx1]) and k < len(diffs[idx2]):
-                    delta = (diffs[idx1][k] + diffs[idx2][k]) / 2
-                    result += bessel_poly(t, k) / math.factorial(k) * delta
+        if k % 2 == 0:  # чётный порядок - с усреднением
+            idx = mid - k // 2
+            if idx >= 0 and idx + 1 < len(diffs):
+                if k < len(diffs[idx]) and k < len(diffs[idx + 1]):
+                    delta = (diffs[idx][k] + diffs[idx + 1][k]) / 2
+
+                    # Полином Бесселя
+                    poly = 1.0
+                    if k == 2:
+                        poly = t * (t - 1)
+                    else:
+                        poly = t * (t - 1)
+                        m = 1
+                        for j in range(3, k + 1):
+                            if j % 2 == 1:
+                                poly *= (t - 0.5)
+                            else:
+                                poly *= (t ** 2 - m ** 2)
+                                m += 1
+
+                    term = poly / math.factorial(k) * delta
+                    result += term
                 else:
                     break
             else:
                 break
-        else:  # нечётный
+        else:  # нечётный порядок
             idx = mid - (k - 1) // 2
-            if idx >= 0:
+            if idx >= 0 and idx < len(diffs):
                 if k < len(diffs[idx]):
                     delta = diffs[idx][k]
-                    result += bessel_poly(t, k) / math.factorial(k) * delta
+
+                    # Полином Бесселя
+                    poly = 1.0
+                    if k == 1:
+                        poly = t - 0.5
+                    elif k == 3:
+                        poly = t * (t - 1) * (t - 0.5)
+                    else:
+                        poly = t * (t - 1)
+                        m = 1
+                        for j in range(3, k + 1):
+                            if j % 2 == 1:
+                                poly *= (t - 0.5)
+                            else:
+                                poly *= (t ** 2 - m ** 2)
+                                m += 1
+
+                    term = poly / math.factorial(k) * delta
+                    result += term
                 else:
                     break
             else:

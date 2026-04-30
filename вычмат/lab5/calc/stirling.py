@@ -34,26 +34,10 @@ def finite_differences_table(y_sorted):
     return table
 
 
-def stirling_poly_even(t, m):
-    """Вычисляет t²·(t²-1²)·(t²-2²)·...·(t²-(m-1)²)"""
-    result = t ** 2
-    for k in range(1, m):
-        result *= (t ** 2 - k ** 2)
-    return result
-
-
-def stirling_poly_odd(t, m):
-    """Вычисляет t·(t²-1²)·(t²-2²)·...·(t²-m²)"""
-    result = t
-    for k in range(1, m + 1):
-        result *= (t ** 2 - k ** 2)
-    return result
-
-
 def stirling(x, x_sorted, y_sorted, h):
     """
     Интерполяция по формуле Стирлинга.
-    Возвращает float или None (если невозможно вычислить).
+    Лучше всего работает для нечётного числа узлов (5, 7, 9...)
     """
     n = len(x_sorted)
 
@@ -65,7 +49,7 @@ def stirling(x, x_sorted, y_sorted, h):
     if not is_uniform:
         return None
 
-    # Центральный узел (для нечётного n берём середину, для чётного - левый из центральных)
+    # Центральный узел
     mid = n // 2
     x0 = x_sorted[mid]
     t = (x - x0) / h
@@ -73,52 +57,47 @@ def stirling(x, x_sorted, y_sorted, h):
     # Получаем таблицу разностей
     diffs = finite_differences_table(y_sorted)
 
-    # Проверяем, достаточно ли данных
     if mid >= len(diffs):
         return None
 
     # Начальное значение - y0
     result = diffs[mid][0]
 
-    # Члены высших порядков
-    m = 0
+    # Максимальный доступный порядок
     max_order = len(diffs[0]) - 1
 
-    while True:
-        order_odd = 2 * m + 1
-        order_even = 2 * m + 2
-
-        # Нечётный член (усреднение разностей)
-        if order_odd <= max_order:
-            idx1 = mid - m - 1
-            idx2 = mid - m
-            if idx1 >= 0 and idx2 < len(diffs):
-                if order_odd < len(diffs[idx1]) and order_odd < len(diffs[idx2]):
-                    delta_odd = (diffs[idx1][order_odd] + diffs[idx2][order_odd]) / 2
-                    term_odd = stirling_poly_odd(t, m) / math.factorial(order_odd) * delta_odd
-                    result += term_odd
+    # Добавляем члены
+    for k in range(1, max_order + 1):
+        if k % 2 == 1:  # нечётный порядок
+            idx1 = mid - (k + 1) // 2
+            idx2 = mid - (k - 1) // 2
+            if idx1 >= 0 and idx2 < len(diffs) and idx2 < len(diffs):
+                if k < len(diffs[idx1]) and k < len(diffs[idx2]):
+                    delta = (diffs[idx1][k] + diffs[idx2][k]) / 2
+                    # Полином для нечётного порядка
+                    poly = t
+                    for j in range(1, (k + 1) // 2):
+                        poly *= (t ** 2 - j ** 2)
+                    term = poly / math.factorial(k) * delta
+                    result += term
                 else:
                     break
             else:
                 break
-        else:
-            break
-
-        # Чётный член
-        if order_even <= max_order:
-            idx = mid - m - 1
-            if idx >= 0:
-                if order_even < len(diffs[idx]):
-                    delta_even = diffs[idx][order_even]
-                    term_even = stirling_poly_even(t, m + 1) / math.factorial(order_even) * delta_even
-                    result += term_even
+        else:  # чётный порядок
+            idx = mid - k // 2
+            if idx >= 0 and idx < len(diffs):
+                if k < len(diffs[idx]):
+                    delta = diffs[idx][k]
+                    # Полином для чётного порядка
+                    poly = t ** 2
+                    for j in range(1, k // 2):
+                        poly *= (t ** 2 - j ** 2)
+                    term = poly / math.factorial(k) * delta
+                    result += term
                 else:
                     break
             else:
                 break
-        else:
-            break
-
-        m += 1
 
     return result
