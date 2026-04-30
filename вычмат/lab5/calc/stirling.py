@@ -1,11 +1,9 @@
-def is_uniform_step(x_sorted):
-    """Проверяет равномерность шага"""
-    if len(x_sorted) < 2:
+def is_uniform_step(x):
+    if len(x) < 2:
         return False, 0.0
-    h = x_sorted[1] - x_sorted[0]
-    for i in range(1, len(x_sorted) - 1):
-        diff = x_sorted[i + 1] - x_sorted[i]
-        if abs(diff - h) > 1e-10:
+    h = x[1] - x[0]
+    for i in range(1, len(x) - 1):
+        if abs((x[i + 1] - x[i]) - h) > 1e-10:
             return False, h
     return True, h
 

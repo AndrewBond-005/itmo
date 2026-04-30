@@ -7,15 +7,18 @@ def check_step(x):
             return False, h
     return True, h
 
+
 def diff(y):
     n = len(y)
     table = [y.copy()]
     for order in range(1, n):
-        row = []
-        for i in range(len(table[order - 1]) - 1):
-            row.append(table[order - 1][i + 1] - table[order - 1][i])
-        table.append(row)
+        prev = table[order - 1]
+        curr = []
+        for i in range(len(prev) - 1):
+            curr.append(prev[i + 1] - prev[i])
+        table.append(curr)
     return table
+
 
 def forward(x0, x, y, h):
     n = len(x)
@@ -25,21 +28,23 @@ def forward(x0, x, y, h):
     term = 1.0
     for i in range(1, n):
         term *= (t - i + 1) / i
-        if i < len(table[i]):
+        if i < len(table):
             result += term * table[i][0]
     return result
+
 
 def backward(x0, x, y, h):
     n = len(x)
     table = diff(y)
     t = (x0 - x[-1]) / h
-    result = y[-1]
+    result = table[0][-1]
     term = 1.0
     for i in range(1, n):
         term *= (t + i - 1) / i
-        if i < len(table[i]):
+        if i < len(table) and len(table[i]) > 0:
             result += term * table[i][-1]
     return result
+
 
 def interpolate(x0, x, y):
     is_uniform, h = check_step(x)
@@ -50,6 +55,7 @@ def interpolate(x0, x, y):
         return forward(x0, x, y, h)
     else:
         return backward(x0, x, y, h)
+
 
 def interpolate_line(x_grid, x, y):
     result = []

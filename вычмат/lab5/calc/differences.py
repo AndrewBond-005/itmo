@@ -1,28 +1,44 @@
 def finite_differences_table(y_sorted):
+    """
+    Построение таблицы конечных разностей
+
+    table[k][i] - разность (k+1)-го порядка для узла i
+    """
     n = len(y_sorted)
-    if n < 2:
-        return []
-    table = [[None] * (n - i) for i in range(n)]
-    for i in range(n):
-        table[i][0] = y_sorted[i]
+    table = []
+    current = y_sorted.copy()
+    table.append(current)
+
     for order in range(1, n):
-        for i in range(n - order):
-            table[i][order] = table[i + 1][order - 1] - table[i][order - 1]
+        prev = table[order - 1]
+        curr = []
+        for i in range(len(prev) - 1):
+            curr.append(prev[i + 1] - prev[i])
+        table.append(curr)
+
     return table
 
+
 def divided_differences_table(x_sorted, y_sorted):
+    """
+    Построение таблицы разделённых разностей
+
+    table[k][i] - разделённая разность (k+1)-го порядка для узла i
+    """
     n = len(x_sorted)
-    if n < 2:
-        return []
-    table = [[None] * (n - i) for i in range(n)]
-    for i in range(n):
-        table[i][0] = y_sorted[i]
+    table = []
+    current = y_sorted.copy()
+    table.append(current)
+
     for order in range(1, n):
-        for i in range(n - order):
-            j = i + order
-            denominator = x_sorted[j] - x_sorted[i]
+        prev = table[order - 1]
+        curr = []
+        for i in range(len(prev) - 1):
+            denominator = x_sorted[i + order] - x_sorted[i]
             if denominator == 0:
-                table[i][order] = float('nan')
+                curr.append(float('nan'))
             else:
-                table[i][order] = (table[i + 1][order - 1] - table[i][order - 1]) / denominator
+                curr.append((prev[i + 1] - prev[i]) / denominator)
+        table.append(curr)
+
     return table
