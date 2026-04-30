@@ -60,18 +60,17 @@ class ComputeButton(ttk.Button):
             if is_uniform:
                 try:
                     import calc.newton_finite as newton_fin
-                    coeffs = newton_fin.build_coefficients(y_sorted, h)
-                    y = newton_fin.interpolate(x, x_sorted, y_sorted, h, coeffs)
+                    y = newton_fin.interpolate(x, x_sorted, y_sorted)
                     self.methods_panel.update_value("newton_fin", y)
                     if not first:
                         result_str += ", "
                     result_str += f"Ньютон(кон)={y:.6f}"
                     first = False
                 except Exception as e:
+                    print(f"Ошибка Ньютон(кон): {e}")
                     self.methods_panel.update_value("newton_fin", None)
             else:
                 self.methods_panel.update_value("newton_fin", None)
-
         if self.methods_panel and self.methods_panel.is_enabled("stirling"):
             if is_uniform and len(x_sorted) >= 3:
                 try:
