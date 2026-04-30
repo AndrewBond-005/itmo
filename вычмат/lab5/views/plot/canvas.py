@@ -2,8 +2,8 @@ import tkinter as tk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import data.core as core
-from utils.const import CLICK_EPSILON, SCROLL_STEP, COLOR_LAGRANGE, COLOR_NEWTON_DIV, COLOR_NEWTON_FIN, LINE_WIDTH, \
-    LINE_STYLE
+from utils.const import (CLICK_EPSILON, SCROLL_STEP, COLOR_LAGRANGE, COLOR_NEWTON_DIV,
+                         COLOR_NEWTON_FIN, COLOR_STIRLING, COLOR_BESSEL, LINE_WIDTH, LINE_STYLE)
 from views.plot.methods_state import methods_state
 from views.plot import lines
 
@@ -174,6 +174,10 @@ class PlotCanvas(tk.Frame):
             return COLOR_NEWTON_DIV
         elif method_name == "newton_fin":
             return COLOR_NEWTON_FIN
+        elif method_name == "stirling":
+            return COLOR_STIRLING
+        elif method_name == "bessel":
+            return COLOR_BESSEL
         return "black"
 
     def _draw_computed_points(self):

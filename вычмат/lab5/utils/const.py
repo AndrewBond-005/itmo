@@ -6,8 +6,8 @@ LEFT_PANEL_PERCENT = 45      # левая панель от общей шири�
 RIGHT_PANEL_PERCENT = 55     # правая панель (60%)
 
 # Пропорции внутри левой панели (вертикальное разделение верх/низ)
-TOP_PANEL_PERCENT = 37       # верхняя часть левой панели (60% высоты)
-BOTTOM_PANEL_PERCENT = 63    # нижняя часть левой панели (40% высоты)
+TOP_PANEL_PERCENT =43      # верхняя часть левой панели (60% высоты)
+BOTTOM_PANEL_PERCENT = 57    # нижняя часть левой панели (40% высоты)
 
 # Пропорции внутри верхней панели (горизонтальное разделение)
 INNER_LEFT_PERCENT = 38      # левая верхняя (таблица) - 40% от ширины верхней части
@@ -41,6 +41,8 @@ SCROLL_STEP = 0.1            # шаг изменения Y при вращени
 COLOR_LAGRANGE = "blue"
 COLOR_NEWTON_DIV = "green"
 COLOR_NEWTON_FIN = "orange"
+COLOR_STIRLING = "purple"
+COLOR_BESSEL = "brown"
 
 # Параметры линии
 LINE_WIDTH = 1.5

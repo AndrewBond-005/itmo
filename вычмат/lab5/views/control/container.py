@@ -2,14 +2,12 @@ from tkinter import ttk
 import tkinter as tk
 from views.control.buttons.exit import ExitButton
 from views.control.buttons.draw_mode import DrawModeButton
-from views.control.buttons.method_lagrange import LagrangeButton
-from views.control.buttons.method_newton_div import NewtonDivButton
-from views.control.buttons.method_newton_fin import NewtonFinButton
 from views.control.buttons.auto_update import AutoUpdateButton
 from views.control.buttons.compute import ComputeButton
 from views.control.buttons.import_btn import ImportButton
 from views.control.buttons.export_btn import ExportButton
 from views.control.buttons.help_btn import HelpButton
+from views.control.methods_panel import MethodsPanel
 from views.control.inputs import XInput, FuncInput, AInput, BInput, NInput
 from views.generate import GenerateButton
 from views.control.messages.area import MessageArea
@@ -27,7 +25,7 @@ class ControlContainer(ttk.Frame):
         # Разделитель
         ttk.Separator(self, orient='horizontal').pack(fill='x', pady=5)
 
-        # Верхняя строка: импорт, экспорт, помощь, выход (теперь message_area уже существует)
+        # Верхняя строка: импорт, экспорт, помощь, выход
         top_line = ttk.Frame(self)
         top_line.pack(fill=tk.X, pady=(0, 5))
 
@@ -87,21 +85,12 @@ class ControlContainer(ttk.Frame):
         self.auto_update_btn = AutoUpdateButton(options_line)
         self.auto_update_btn.pack(side=tk.LEFT)
 
-        # Методы интерполяции
-        methods_label = ttk.Label(self, text="Методы:", font=("Arial", 11))
-        methods_label.pack(anchor="w", pady=(3, 0))
+        # Разделитель
+        ttk.Separator(self, orient='horizontal').pack(fill='x', pady=5)
 
-        methods_line = ttk.Frame(self)
-        methods_line.pack(fill=tk.X, pady=1)
-
-        self.lagrange_btn = LagrangeButton(methods_line)
-        self.lagrange_btn.pack(side=tk.LEFT, padx=(0, 5))
-
-        self.newton_div_btn = NewtonDivButton(methods_line)
-        self.newton_div_btn.pack(side=tk.LEFT, padx=5)
-
-        self.newton_fin_btn = NewtonFinButton(methods_line)
-        self.newton_fin_btn.pack(side=tk.LEFT, padx=5)
+        # Панель методов (вертикальная с полями вывода)
+        self.methods_panel = MethodsPanel(self)
+        self.methods_panel.pack(fill=tk.X, pady=5)
 
         # Растягивающийся фрейм
         ttk.Frame(self).pack(expand=True, fill=tk.BOTH)
@@ -114,6 +103,9 @@ class ControlContainer(ttk.Frame):
 
     def get_compute_button(self):
         return self.compute_btn
+
+    def get_methods_panel(self):
+        return self.methods_panel
 
     def set_message_height(self, height):
         self.message_area.set_height(height)

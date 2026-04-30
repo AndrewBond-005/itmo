@@ -16,3 +16,7 @@ class RightPanel(ttk.Frame):
         # Передаём ссылки на виджеты для СКМ
         self.plot_canvas.set_x_input(control_container.get_x_input())
         self.plot_canvas.set_compute_button(control_container.get_compute_button())
+
+        # Передаём methods_panel в compute_button
+        compute_btn = control_container.get_compute_button()
+        compute_btn.set_methods_panel(control_container.get_methods_panel())
