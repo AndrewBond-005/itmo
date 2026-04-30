@@ -19,29 +19,26 @@ def diff(y):
     return table
 
 
-def forward(x0, x, y, h):
+def newton(x0, x, y, h, forward=True):
     n = len(x)
     table = diff(y)
-    t = (x0 - x[0]) / h
-    result = table[0][0]
-    term = 1.0
-    for i in range(1, n):
-        term *= (t - i + 1) / i
-        if i < len(table):
-            result += term * table[i][0]
-    return result
 
+    sign = 1 if forward else -1
+    idx = 0 if forward else -1
+    t = (x0 - x[idx]) / h
 
-def backward(x0, x, y, h):
-    n = len(x)
-    table = diff(y)
-    t = (x0 - x[-1]) / h
-    result = table[0][-1]
+    result = table[0][idx]
     term = 1.0
+
     for i in range(1, n):
-        term *= (t + i - 1) / i
+        if forward:
+            term *= (t - i + 1) / i
+        else:
+            term *= (t + i - 1) / i
+
         if i < len(table):
-            result += term * table[i][-1]
+            result += term * table[i][idx]
+
     return result
 
 
@@ -51,9 +48,9 @@ def interpolate(x0, x, y):
         return None
     mid = (x[0] + x[-1]) / 2
     if x0 <= mid:
-        return forward(x0, x, y, h)
+        return newton(x0, x, y, h,True)
     else:
-        return backward(x0, x, y, h)
+        return newton(x0, x, y, h,False)
 
 
 def interpolate_line(x_grid, x, y):
