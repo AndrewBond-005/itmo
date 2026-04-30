@@ -9,15 +9,6 @@ import math
 
 
 def build_grid(x_sorted):
-    """
-    Создаёт сетку для построения линий от min(x) до max(x)
-
-    Args:
-        x_sorted: отсортированный список x-координат узлов
-
-    Returns:
-        list: сетка x-координат
-    """
     if len(x_sorted) < 2:
         return []
 
@@ -33,12 +24,6 @@ def build_grid(x_sorted):
 
 
 def get_sorted_valid_nodes(core):
-    """
-    Получает отсортированные валидные узлы из core
-
-    Returns:
-        tuple: (x_sorted, y_sorted)
-    """
     x_list = core.get_x()
     y_list = core.get_y()
 
@@ -61,20 +46,12 @@ def get_sorted_valid_nodes(core):
 
 
 def compute_lagrange_line(x_grid, x_sorted, y_sorted):
-    """
-    Вычисляет значения интерполяции Лагранжа для сетки
-
-    Returns:
-        list: значения y для каждой точки сетки
-    """
     if len(x_sorted) < 2:
         return []
-
     y_grid = []
     for x in x_grid:
         try:
             y = lagrange.interpolate(x, x_sorted, y_sorted)
-            # Проверка на nan
             if math.isnan(y):
                 y_grid.append(float('nan'))
             else:
@@ -87,21 +64,12 @@ def compute_lagrange_line(x_grid, x_sorted, y_sorted):
 
 
 def compute_newton_div_line(x_grid, x_sorted, y_sorted):
-    """
-    Вычисляет значения интерполяции Ньютона (разделённые разности) для сетки
-
-    Returns:
-        list: значения y для каждой точки сетки
-    """
     if len(x_sorted) < 2:
         return []
-
     try:
         coeffs = newton_div.build_coefficients(x_sorted, y_sorted)
-        # Проверка коэффициентов на nan
         if any(math.isnan(c) for c in coeffs):
             return [float('nan')] * len(x_grid)
-
         y_grid = []
         for x in x_grid:
             y = newton_div.interpolate(x, x_sorted, coeffs)
@@ -116,12 +84,6 @@ def compute_newton_div_line(x_grid, x_sorted, y_sorted):
 
 
 def compute_newton_fin_line(x_grid, x_sorted, y_sorted):
-    """
-    Вычисляет значения интерполяции Ньютона (конечные разности) для сетки
-
-    Returns:
-        list: значения y для каждой точки сетки или None если шаг неравномерный
-    """
     if len(x_sorted) < 2:
         return []
 
@@ -148,7 +110,6 @@ def compute_newton_fin_line(x_grid, x_sorted, y_sorted):
 
 
 def compute_stirling_line(x_grid, x_sorted, y_sorted):
-    """Вычисляет значения интерполяции Стирлинга для сетки"""
     if len(x_sorted) < 3:
         return []
 
@@ -172,7 +133,6 @@ def compute_stirling_line(x_grid, x_sorted, y_sorted):
 
 
 def compute_bessel_line(x_grid, x_sorted, y_sorted):
-    """Вычисляет значения интерполяции Бесселя для сетки"""
     if len(x_sorted) < 4:
         return []
 
