@@ -12,11 +12,10 @@ def diff(y):
     n = len(y)
     table = [y.copy()]
     for order in range(1, n):
-        prev = table[order - 1]
-        curr = []
-        for i in range(len(prev) - 1):
-            curr.append(prev[i + 1] - prev[i])
-        table.append(curr)
+        row = []
+        for i in range(len(table[order - 1]) - 1):
+            row.append(table[order - 1][i + 1] - table[order - 1][i])
+        table.append(row)
     return table
 
 
@@ -41,7 +40,7 @@ def backward(x0, x, y, h):
     term = 1.0
     for i in range(1, n):
         term *= (t + i - 1) / i
-        if i < len(table) and len(table[i]) > 0:
+        if i < len(table):
             result += term * table[i][-1]
     return result
 
