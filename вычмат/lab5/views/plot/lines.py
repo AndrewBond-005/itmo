@@ -87,7 +87,7 @@ def compute_newton_fin_line(x_grid, x_sorted, y_sorted):
     if len(x_sorted) < 2:
         return []
 
-    is_uniform, _ = newton_fin.check_uniform_step(x_sorted)
+    is_uniform, _ = newton_fin.check_step(x_sorted)
     if not is_uniform:
         return None
 

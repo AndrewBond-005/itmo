@@ -30,63 +30,48 @@ def finite_differences_table(y_sorted):
 
 
 def stirling(x, x_sorted, y_sorted, h):
-    """Интерполяция по формуле Стирлинга"""
     n = len(x_sorted)
-    # Проверяем условия
     if n < 3:
         return None
     uniform, _ = is_uniform_step(x_sorted)
     if not uniform:
         return None
-    # Строим таблицу разностей
+
     table = finite_differences_table(y_sorted)
-    # Находим центральный узел
     mid = n // 2
     x0 = x_sorted[mid]
     t = (x - x0) / h
-    # Начинаем с y0
+
     result = table[mid][0]
-    # Добавляем члены для чётных и нечётных порядков
     max_order = len(table[0]) - 1
 
     for k in range(1, max_order + 1):
-        if k % 2 == 1:  # нечётный порядок
-            # Берём среднее от двух разностей
+        if k % 2 == 1:
             idx1 = mid - (k + 1) // 2
             idx2 = mid - (k - 1) // 2
-
             if idx1 >= 0 and idx2 >= 0 and k < len(table[idx1]) and k < len(table[idx2]):
                 delta = (table[idx1][k] + table[idx2][k]) / 2.0
-                # Считаем полином для нечётного порядка
-                poly = t
-                j = 1
-                while j < (k + 1) // 2:
-                    poly = poly * (t * t - j * j)
-                    j = j + 1
-                # Считаем факториал
-                fact = 1
-                for i in range(2, k + 1):
-                    fact = fact * i
-                result = result + poly / fact * delta
+                term = t
+                for j in range(1, (k + 1) // 2):
+                    term *= (t * t - j * j)
+                for j in range(2, k + 1):
+                    term /= j
+                result += term * delta
             else:
                 break
-        else:  # чётный порядок
+        else:
             idx = mid - k // 2
             if idx >= 0 and k < len(table[idx]):
                 delta = table[idx][k]
-                # Считаем полином для чётного порядка
-                poly = t * t
-                j = 1
-                while j < k // 2:
-                    poly = poly * (t * t - j * j)
-                    j = j + 1
-                if k == 2:
-                    poly = t * t
-                # Считаем факториал
-                fact = 1
-                for i in range(2, k + 1):
-                    fact = fact * i
-                result = result + poly / fact * delta
+                term = 1.0
+                for j in range(1, k // 2):
+                    term *= (t * t - j * j)
+                for j in range(1, k // 2 + 1):
+                    term *= (t * t - (j - 1) * (j - 1))
+                for j in range(2, k + 1):
+                    term /= j
+                result += term * delta
             else:
                 break
+
     return result

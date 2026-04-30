@@ -13,7 +13,7 @@ def format_finite_table(x_sorted, y_sorted):
         return "Недостаточно точек (<2) для построения таблицы разностей"
 
     # Проверка равномерности шага
-    is_uniform, h = newton_fin.check_uniform_step(x_sorted)
+    is_uniform, h = newton_fin.check_step(x_sorted)
     if not is_uniform:
         return "Таблица конечных разностей не определена: шаг неравномерный"
 
