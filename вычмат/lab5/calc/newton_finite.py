@@ -22,14 +22,13 @@ def diff(y):
 def newton(x0, x, y, h, forward=True):
     n = len(x)
     table = diff(y)
-
-    sign = 1 if forward else -1
-    idx = 0 if forward else -1
+    if forward:
+        idx = 0
+    else:
+        idx = -1
     t = (x0 - x[idx]) / h
-
     result = table[0][idx]
     term = 1.0
-
     for i in range(1, n):
         if forward:
             term *= (t - i + 1) / i
