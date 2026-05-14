@@ -2,24 +2,41 @@ import numpy as np
 import calc.lagrange as lagrange
 import calc.newton_divided as newton_div
 import calc.newton_finite as newton_fin
-
-from utils.const import GRID_POINTS
+from utils.const import GRID_POINTS, MIN_GRID_POINTS, MAX_GRID_POINTS, POINTS_PER_UNIT
 import math
 
 
 def build_grid(x_sorted):
+    """
+    Создаёт сетку для построения линий с динамическим количеством точек
+
+    Количество точек зависит от длины интервала:
+    - Для коротких интервалов (< 1) - больше точек для гладкости
+    - Для длинных интервалов (> 10) - меньше точек для производительности
+    """
     if len(x_sorted) < 2:
         return []
 
     x_min = min(x_sorted)
     x_max = max(x_sorted)
+    interval_length = x_max - x_min
 
-    # Добавляем небольшой отступ для красоты
-    padding = (x_max - x_min) * 0.05
+    # Динамическое определение количества точек
+    # Чем больше интервал, тем меньше точек на единицу длины (но не менее минимума)
+
+    # Способ 1: фиксированное количество точек на единицу длины
+    points_count = int(interval_length * POINTS_PER_UNIT)
+
+    # Способ 2: ограничиваем минимальным и максимальным значением
+    points_count = max(MIN_GRID_POINTS, min(MAX_GRID_POINTS, points_count))
+
+    # Способ 3: добавляем небольшой отступ для красоты
+    padding = interval_length * 0.05
     x_start = x_min - padding
     x_end = x_max + padding
 
-    return np.linspace(x_start, x_end, GRID_POINTS).tolist()
+    # Создаём сетку
+    return np.linspace(x_start, x_end, points_count).tolist()
 
 
 def get_sorted_valid_nodes(core):
@@ -91,4 +108,3 @@ def compute_newton_fin_line(x_grid, x_sorted, y_sorted):
         return None
 
     return newton_fin.interpolate_line(x_grid, x_sorted, y_sorted)
-
