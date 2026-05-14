@@ -1,9 +1,4 @@
 def finite_differences_table(y_sorted):
-    """
-    Построение таблицы конечных разностей
-
-    table[k][i] - разность (k+1)-го порядка для узла i
-    """
     n = len(y_sorted)
     table = []
     current = y_sorted.copy()
@@ -20,11 +15,6 @@ def finite_differences_table(y_sorted):
 
 
 def divided_differences_table(x_sorted, y_sorted):
-    """
-    Построение таблицы разделённых разностей
-
-    table[k][i] - разделённая разность (k+1)-го порядка для узла i
-    """
     n = len(x_sorted)
     table = []
     current = y_sorted.copy()
