@@ -32,9 +32,8 @@ class ControlContainer(ttk.Frame):
         self.import_btn = ImportButton(top_line, self.message_area)
         self.import_btn.pack(side=tk.LEFT, padx=2)
 
-        self.export_btn = ExportButton(top_line, self.message_area)
-        self.export_btn.pack(side=tk.LEFT, padx=2)
-
+        # ExportButton будет создан ПОЗЖЕ, когда будет methods_panel
+        self.export_btn = None
         self.help_btn = HelpButton(top_line)
         self.help_btn.pack(side=tk.LEFT, padx=2)
 
@@ -91,6 +90,14 @@ class ControlContainer(ttk.Frame):
         # Панель методов (вертикальная с полями вывода)
         self.methods_panel = MethodsPanel(self)
         self.methods_panel.pack(fill=tk.X, pady=5)
+
+        # ТЕПЕРЬ создаём ExportButton с methods_panel
+        if self.export_btn is None:
+            self.export_btn = ExportButton(top_line, self.message_area, self.methods_panel)
+            self.export_btn.pack(side=tk.LEFT, padx=2, before=self.help_btn)
+
+        # Передаём methods_panel в compute_btn
+        self.compute_btn.set_methods_panel(self.methods_panel)
 
         # Растягивающийся фрейм
         ttk.Frame(self).pack(expand=True, fill=tk.BOTH)

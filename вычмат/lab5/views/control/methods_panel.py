@@ -5,8 +5,7 @@ from utils.const import COLOR_LAGRANGE, COLOR_NEWTON_DIV, COLOR_NEWTON_FIN, COLO
 import calc.lagrange as lagrange
 import calc.newton_divided as newton_div
 import calc.newton_finite as newton_fin
-import calc.stirling as stirling
-import calc.bessel as bessel
+
 
 
 class MethodsPanel(ttk.LabelFrame):
@@ -31,13 +30,6 @@ class MethodsPanel(ttk.LabelFrame):
             self, "Ньютон (кон)", COLOR_NEWTON_FIN, newton_fin.interpolate
         )
 
-        self.method_rows["stirling"] = MethodRow(
-            self, "Стирлинг", COLOR_STIRLING, stirling.stirling
-        )
-
-        self.method_rows["bessel"] = MethodRow(
-            self, "Бессель", COLOR_BESSEL, bessel.bessel
-        )
 
     def is_enabled(self, method_name):
         """Проверяет, включён ли метод"""

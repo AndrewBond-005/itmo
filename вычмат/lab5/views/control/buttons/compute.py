@@ -71,43 +71,12 @@ class ComputeButton(ttk.Button):
                     self.methods_panel.update_value("newton_fin", None)
             else:
                 self.methods_panel.update_value("newton_fin", None)
-        if self.methods_panel and self.methods_panel.is_enabled("stirling"):
-            if is_uniform and len(x_sorted) >= 3:
-                try:
-                    import calc.stirling as stirling
-                    y = stirling.stirling(x, x_sorted, y_sorted, h)
-                    self.methods_panel.update_value("stirling", y)
-                    if not first:
-                        result_str += ", "
-                    result_str += f"Стирлинг={y:.6f}"
-                    first = False
-                except Exception as e:
-                    self.methods_panel.update_value("stirling", None)
-            else:
-                self.methods_panel.update_value("stirling", None)
-
-        if self.methods_panel and self.methods_panel.is_enabled("bessel"):
-            if is_uniform and len(x_sorted) >= 4:
-                try:
-                    import calc.bessel as bessel
-                    y = bessel.bessel(x, x_sorted, y_sorted, h)
-                    self.methods_panel.update_value("bessel", y)
-                    if not first:
-                        result_str += ", "
-                    result_str += f"Бессель={y:.6f}"
-                    first = False
-                except Exception as e:
-                    self.methods_panel.update_value("bessel", None)
-            else:
-                self.methods_panel.update_value("bessel", None)
 
         if self.methods_panel:
             results = {
                 "lagrange": self.methods_panel.get_row("lagrange").get_value(),
                 "newton_div": self.methods_panel.get_row("newton_div").get_value(),
-                "newton_fin": self.methods_panel.get_row("newton_fin").get_value(),
-                "stirling": self.methods_panel.get_row("stirling").get_value(),
-                "bessel": self.methods_panel.get_row("bessel").get_value()
+                "newton_fin": self.methods_panel.get_row("newton_fin").get_value()
             }
             core.set_computed_points(x, results)
         self.message_area.add_message(result_str, "info")

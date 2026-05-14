@@ -2,8 +2,7 @@ import numpy as np
 import calc.lagrange as lagrange
 import calc.newton_divided as newton_div
 import calc.newton_finite as newton_fin
-import calc.bessel as bessel
-import calc.stirling as stirling
+
 from utils.const import GRID_POINTS
 import math
 
@@ -93,48 +92,3 @@ def compute_newton_fin_line(x_grid, x_sorted, y_sorted):
 
     return newton_fin.interpolate_line(x_grid, x_sorted, y_sorted)
 
-
-def compute_stirling_line(x_grid, x_sorted, y_sorted):
-    if len(x_sorted) < 3:
-        return []
-
-    # Проверяем равномерность шага
-    is_uniform, h = stirling.is_uniform_step(x_sorted)
-    if not is_uniform:
-        return None
-
-    y_grid = []
-    for x in x_grid:
-        try:
-            y = stirling.stirling(x, x_sorted, y_sorted, h)
-            if y is None or math.isnan(y):
-                y_grid.append(float('nan'))
-            else:
-                y_grid.append(y)
-        except:
-            y_grid.append(float('nan'))
-
-    return y_grid
-
-
-def compute_bessel_line(x_grid, x_sorted, y_sorted):
-    if len(x_sorted) < 4:
-        return []
-
-    # Проверяем равномерность шага
-    is_uniform, h = bessel.is_uniform_step(x_sorted)
-    if not is_uniform:
-        return None
-
-    y_grid = []
-    for x in x_grid:
-        try:
-            y = bessel.bessel(x, x_sorted, y_sorted, h)
-            if y is None or math.isnan(y):
-                y_grid.append(float('nan'))
-            else:
-                y_grid.append(y)
-        except:
-            y_grid.append(float('nan'))
-
-    return y_grid

@@ -41,21 +41,6 @@ class MethodsState:
         self.newton_fin_enabled = state
         self.notify()
 
-    # Стирлинг
-    def is_stirling_enabled(self):
-        return self.stirling_enabled
-
-    def set_stirling_enabled(self, state):
-        self.stirling_enabled = state
-        self.notify()
-
-    # Бессель
-    def is_bessel_enabled(self):
-        return self.bessel_enabled
-
-    def set_bessel_enabled(self, state):
-        self.bessel_enabled = state
-        self.notify()
 
 
 # Глобальный экземпляр состояния
