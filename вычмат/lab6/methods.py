@@ -7,13 +7,13 @@ def init_arrays(x0, y0):
 
 def calculate_steps(x0, xn, h):
     n = max(1, round((xn - x0) / h))
-    adjusted_h = (xn - x0) / n
-    return n, adjusted_h
+    xh = (xn - x0) / n
+    return n, xh
 
 def euler(f, x0, y0, xn, h):
     xs, ys, x, y = init_arrays(x0, y0)
     n, h = calculate_steps(x0, xn, h)
-    for _ in range(n):
+    for i in range(n):
         y = y + h * f(x, y)
         x = x + h
         xs.append(x)
@@ -24,7 +24,7 @@ def euler(f, x0, y0, xn, h):
 def runge_kutta4(f, x0, y0, xn, h):
     xs, ys, x, y = init_arrays(x0, y0)
     n, h = calculate_steps(x0, xn, h)
-    for _ in range(n):
+    for i in range(n):
         k1 = h * f(x, y)
         k2 = h * f(x + h / 2, y + k1 / 2)
         k3 = h * f(x + h / 2, y + k2 / 2)
