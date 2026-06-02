@@ -38,13 +38,14 @@ def styled_button(parent, text, command, **kw):
     btn = tk.Button(
         parent, text=text, command=command,
         font=FONT_TITLE,
-        bg=COLORS["accent"],
+        bg=kw.pop('bg', COLORS["accent"]),
         fg="#ffffff",
-        activebackground="#9b8df9",
+        activebackground=kw.pop('activebackground', "#9b8df9"),
         activeforeground="#ffffff",
         relief="flat",
         cursor="hand2",
-        padx=18, pady=8,
+        padx=kw.pop('padx', 18),
+        pady=kw.pop('pady', 8),
         **kw
     )
     return btn
@@ -148,10 +149,38 @@ class LeftPanel(tk.Frame):
         tk.Frame(self, height=1, bg=COLORS["border"]).pack(fill="x", padx=16, pady=8)
 
     def _build_buttons(self):
-        styled_button(self, "▶  Решить", self.app.solve).pack(fill="x", padx=16, pady=(16, 8))
+        # Кнопка Решить
+        styled_button(self, "▶  Решить", self.app.solve).pack(fill="x", padx=16, pady=(16, 6))
+
+        # Кнопка Очистить
         styled_button(self, "🗑  Очистить", self.app.clear,
-                      bg=COLORS["card"], activebackground=COLORS["border"]).pack(
-            fill="x", padx=16, pady=(0, 8))
+                      bg=COLORS["card"], activebackground=COLORS["border"]).pack(fill="x", padx=16, pady=(0, 6))
+
+        # Ряд с кнопками Помощь и Выход (на одной строке)
+        buttons_row = tk.Frame(self, bg=COLORS["panel"])
+        buttons_row.pack(fill="x", padx=16, pady=(0, 16))
+
+        # Кнопка Помощь
+        help_btn = tk.Button(
+            buttons_row, text="❓  Помощь", command=self.app.show_help,
+            font=("Segoe UI", 10),
+            bg=COLORS["card"], fg=COLORS["text"],
+            activebackground=COLORS["border"], activeforeground=COLORS["text"],
+            relief="flat", cursor="hand2",
+            padx=18, pady=4
+        )
+        help_btn.pack(side="left", expand=True, fill="x", padx=(0, 5))
+
+        # Кнопка Выход (красная)
+        exit_btn = tk.Button(
+            buttons_row, text="✕  Выход", command=self.app.quit_app,
+            font=("Segoe UI", 10),
+            bg="#e74c3c", fg="#ffffff",
+            activebackground="#c0392b", activeforeground="#ffffff",
+            relief="flat", cursor="hand2",
+            padx=18, pady=4
+        )
+        exit_btn.pack(side="right", expand=True, fill="x", padx=(5, 0))
 
     def set_status(self, msg, color=None):
         self.lbl_status.config(text=msg, fg=color or COLORS["text_dim"])
