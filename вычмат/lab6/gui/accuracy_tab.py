@@ -43,12 +43,8 @@ class AccuracyTab(tk.Frame):
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
     def draw(self, acc_info, eps):
-        print(f"[AccuracyTab] Отрисовка, acc_info={list(acc_info.keys()) if acc_info else 'пусто'}")
-
         self.clear()
-
         if not acc_info:
-            print("[AccuracyTab] Нет данных для отрисовки")
             tk.Label(self.scrollable_frame, text="Нет данных для отображения",
                      font=FONT_TABLE, bg=self.colors["bg"],
                      fg=self.colors["text_dim"]).pack(pady=20)
@@ -94,4 +90,3 @@ class AccuracyTab(tk.Frame):
         self.scrollable_frame.update_idletasks()
         self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-        print(f"[AccuracyTab] Отрисовано {len(acc_info)} методов")

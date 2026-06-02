@@ -39,18 +39,15 @@ class PlotTab(tk.Frame):
         self.ax.clear()
         self._style_ax(self.ax)
     def draw(self, results, xs_exact, ys_exact, ode_label):
-        print(f"[PlotTab] Начало отрисовки, методов: {len(results)}")
         self.ax.clear()
         self._style_ax(self.ax)
         if self.var_show_exact.get():
-            print(f"[PlotTab] Рисуем точное решение, точек={len(xs_exact)}")
             self.ax.plot(xs_exact, ys_exact,
                          color=self.colors["exact"], linewidth=2.5,
                          label="Точное решение", zorder=5)
 
         styles = {"Эйлер": ("-", 1.6), "Рунге-Кутта 4": ("-", 1.6), "Адамс": ("-", 2.0)}
         for name, (xs, ys) in results.items():
-            print(f"[PlotTab] Рисуем {name}, точек={len(xs)}")
             lstyle, lw = styles.get(name, ("-", 1.5))
             self.ax.plot(
                 xs, ys,
@@ -75,4 +72,3 @@ class PlotTab(tk.Frame):
 
         self.fig.tight_layout()
         self.canvas_plot.draw()
-        print(f"[PlotTab] Отрисовка завершена")

@@ -97,15 +97,9 @@ class ODESolverApp(tk.Tk):
         return ODE_LIST[self.var_ode.get()]
 
     def solve(self):
-        print("\n" + "=" * 60)
-        print("[MAIN] Нажата кнопка Решить")
-        print("=" * 60)
-
         try:
             x0, y0, xn, h, eps = self.get_params()
-            print(f"[MAIN] Параметры: x0={x0}, y0={y0}, xn={xn}, h={h}, eps={eps:.2e}")
         except ValueError:
-            print("[MAIN] Ошибка ввода чисел")
             messagebox.showerror("Ошибка ввода",
                                  "Все числовые поля должны содержать корректные числа.\n"
                                  "Используйте точку или запятую в качестве десятичного разделителя.")
@@ -119,7 +113,6 @@ class ODESolverApp(tk.Tk):
         if not self.get_selected_methods():
             errors.append("Выберите хотя бы один метод решения")
         if errors:
-            print(f"[MAIN] Ошибки валидации: {errors}")
             messagebox.showerror("Некорректные данные", "\n".join(f"• {e}" for e in errors))
             return
 
@@ -127,84 +120,60 @@ class ODESolverApp(tk.Tk):
             ode = self.get_selected_ode()
             f = ode.f
             ex = ode.exact
-            print(f"[MAIN] Выбрано ОДУ: {ode.label}")
-
             results = {}
             acc_info = {}
             h_used = {}
 
             # Метод Эйлера (p=1) с автоматическим подбором шага
             if self.var_euler.get():
-                print("\n[MAIN] --- Запуск метода Эйлера ---")
                 xs, ys, final_h, error = AccuracyEstimator.runge_error_with_adaptation(
                     euler, f, x0, y0, xn, eps, p=1, h_start=h
                 )
-                print(f"[MAIN] Эйлер завершён: h={final_h:.8f}, error={error:.6e}, точек={len(xs)}")
                 results["Эйлер"] = (xs, ys)
                 acc_info["Эйлер"] = (error, f"правило Рунге (p=1), h={final_h:.6f}")
                 h_used["Эйлер"] = final_h
 
             # Метод Рунге-Кутта 4 (p=4) с автоматическим подбором шага
             if self.var_rk4.get():
-                print("\n[MAIN] --- Запуск метода Рунге-Кутта 4 ---")
                 xs, ys, final_h, error = AccuracyEstimator.runge_error_with_adaptation(
                     runge_kutta4, f, x0, y0, xn, eps, p=4, h_start=h
                 )
-                print(f"[MAIN] РК4 завершён: h={final_h:.8f}, error={error:.6e}, точек={len(xs)}")
                 results["Рунге-Кутта 4"] = (xs, ys)
                 acc_info["Рунге-Кутта 4"] = (error, f"правило Рунге (p=4), h={final_h:.6f}")
                 h_used["Рунге-Кутта 4"] = final_h
 
             # Метод Адамса (многошаговый) — используем сравнение с точным решением
             if self.var_adams.get():
-                print("\n[MAIN] --- Запуск метода Адамса ---")
                 h_current = h
                 error = float('inf')
                 xs, ys = [], []
                 for iteration in range(10):
-                    print(f"[MAIN] Адамс итерация {iteration + 1}/10, h={h_current:.8f}")
                     xs, ys = adams(f, x0, y0, xn, h_current)
                     error = AccuracyEstimator.exact_error(xs, ys, ex, x0, y0)
-                    print(f"[MAIN] Адамс error={error:.6e}")
                     if error <= eps or iteration == 9:
                         break
                     h_current = h_current / 2
-                    print(f"[MAIN] Уменьшаем h до {h_current:.8f}")
                 results["Адамс"] = (xs, ys)
                 acc_info["Адамс"] = (error, f"сравнение с точным решением, h={h_current:.6f}")
                 h_used["Адамс"] = h_current
-                print(f"[MAIN] Адамс завершён: h={h_current:.8f}, error={error:.6e}, точек={len(xs)}")
 
             # Точное решение на плотной сетке (для красивого графика)
             min_h = min(h_used.values()) if h_used else h
             n_exact = max(200, int((xn - x0) / min_h) * 5)
-            print(f"[MAIN] Построение точного решения: {n_exact} точек")
             xs_exact = [x0 + i * (xn - x0) / n_exact for i in range(n_exact + 1)]
             ys_exact = [ex(x, x0, y0) for x in xs_exact]
 
         except Exception as e:
-            print(f"[MAIN] ОШИБКА: {e}")
             traceback.print_exc()
             messagebox.showerror("Ошибка вычислений", traceback.format_exc())
             return
-
-        # Отрисовка результатов
-        print("\n[MAIN] Отрисовка результатов...")
         self.table_tab.clear()
         self.plot_tab.clear()
         self.accuracy_tab.clear()
-
         self.table_tab.draw(results, ex, x0, y0)
-        print("[MAIN] Таблица нарисована")
-
         self.plot_tab.draw(results, xs_exact, ys_exact, ode.label)
-        print("[MAIN] График нарисован")
-        print(f"[MAIN] acc_info перед отрисовкой: {list(acc_info.keys())}")
-        print(f"[MAIN] eps={eps}")
         self.accuracy_tab.draw(acc_info, eps)
-        print("[MAIN] Точность нарисована")
 
-        # Статус с информацией о подобранных шагах
         status_msg = "Вычисление завершено ✓ | Шаги: "
         for name, h_val in h_used.items():
             if name == "Эйлер":
@@ -215,11 +184,8 @@ class ODESolverApp(tk.Tk):
                 short_name = name
             status_msg += f"{short_name}={h_val:.6f} "
         self.left_panel.set_status(status_msg, COLORS["accent2"])
-        print(f"[MAIN] {status_msg}")
-        print("[MAIN] Готово!\n")
 
     def clear(self):
-        print("[MAIN] Очистка результатов")
         self.table_tab.clear()
         self.plot_tab.clear()
         self.accuracy_tab.clear()
@@ -237,7 +203,6 @@ class ODESolverApp(tk.Tk):
     • Автоматический подбор шага по правилу Рунге для Эйлера и РК4.
     • Оценка погрешности и сравнение с точным решением.
 """
-
         messagebox.showinfo("Помощь", help_text)
 
     def quit_app(self):
