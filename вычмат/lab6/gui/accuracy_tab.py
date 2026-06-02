@@ -1,13 +1,8 @@
-"""
-Вкладка с оценкой точности
-"""
-
 import tkinter as tk
 from config import COLORS, FONT_TITLE, FONT_TABLE, FONT_HEADER
 
 
 class AccuracyTab(tk.Frame):
-    """Вкладка с оценкой точности"""
 
     def __init__(self, parent, colors):
         super().__init__(parent, bg=colors["bg"])
@@ -28,19 +23,15 @@ class AccuracyTab(tk.Frame):
 
     def draw(self, acc_info, eps):
         self.clear()
-
         parent = self.acc_frame
-
         tk.Label(parent, text="Результаты оценки точности",
                  font=FONT_TITLE, bg=self.colors["bg"],
                  fg=self.colors["text"]).pack(anchor="w", pady=(0, 12))
-
         BD = 1
         table_frame = tk.Frame(parent, bg=self.colors["border"])
         table_frame.pack(anchor="w")
-
-        headers = ["Метод", "Max погрешность", "Способ оценки", "ε (задано)", "Статус"]
-        col_widths = [18, 18, 34, 12, 12]
+        headers = ["Метод", "Max погрешность"]
+        col_widths = [18, 20]
 
         def acc_cell(text, row, col, bg=self.colors["card"], fg=self.colors["text"],
                      font=FONT_TABLE, bold=False, anchor="center"):
@@ -50,18 +41,10 @@ class AccuracyTab(tk.Frame):
             tk.Label(frm, text=text, font=_font, bg=bg, fg=fg,
                      padx=8, pady=5, anchor=anchor,
                      width=col_widths[col]).pack(fill="both", expand=True)
-
         for c, hdr in enumerate(headers):
             acc_cell(hdr, 0, c, bg=self.colors["card"], fg=self.colors["text"],
                      font=FONT_HEADER, bold=True)
-
         for r, (name, (max_err, desc)) in enumerate(acc_info.items(), start=1):
-            ok = max_err <= eps
-            status_text = "✓ OK" if ok else "✗ Превышена"
             row_bg = self.colors["card"] if r % 2 == 0 else self.colors["bg"]
-
             acc_cell(name, r, 0, bg=row_bg, fg=self.colors["text"])
             acc_cell(f"{max_err:.2e}", r, 1, bg=row_bg, fg=self.colors["text"])
-            acc_cell(desc, r, 2, bg=row_bg, fg=self.colors["text_dim"], anchor="w")
-            acc_cell(f"{eps:.2e}", r, 3, bg=row_bg, fg=self.colors["text_dim"])
-            acc_cell(status_text, r, 4, bg=row_bg, fg=self.colors["text"])

@@ -1,17 +1,11 @@
-"""
-Вкладка с графиками
-"""
-
 import tkinter as tk
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
-
 from config import COLORS, PLOT_COLORS
 
 
 class PlotTab(tk.Frame):
-    """Вкладка с графиками"""
 
     def __init__(self, parent, colors, var_show_exact):
         super().__init__(parent, bg=colors["bg"])
@@ -23,10 +17,8 @@ class PlotTab(tk.Frame):
         self.fig = Figure(figsize=(9, 6), facecolor=self.colors["plot_bg"])
         self.ax = self.fig.add_subplot(111)
         self._style_ax(self.ax)
-
         self.canvas_plot = FigureCanvasTkAgg(self.fig, master=self)
         self.canvas_plot.get_tk_widget().pack(fill="both", expand=True)
-
         toolbar_frame = tk.Frame(self, bg=self.colors["bg"])
         toolbar_frame.pack(fill="x")
         toolbar = NavigationToolbar2Tk(self.canvas_plot, toolbar_frame)
@@ -46,20 +38,19 @@ class PlotTab(tk.Frame):
     def clear(self):
         self.ax.clear()
         self._style_ax(self.ax)
-        self.canvas_plot.draw()
-
     def draw(self, results, xs_exact, ys_exact, ode_label):
+        print(f"[PlotTab] Начало отрисовки, методов: {len(results)}")
         self.ax.clear()
         self._style_ax(self.ax)
-
         if self.var_show_exact.get():
+            print(f"[PlotTab] Рисуем точное решение, точек={len(xs_exact)}")
             self.ax.plot(xs_exact, ys_exact,
                          color=self.colors["exact"], linewidth=2.5,
                          label="Точное решение", zorder=5)
 
         styles = {"Эйлер": ("-", 1.6), "Рунге-Кутта 4": ("-", 1.6), "Адамс": ("-", 2.0)}
-
         for name, (xs, ys) in results.items():
+            print(f"[PlotTab] Рисуем {name}, точек={len(xs)}")
             lstyle, lw = styles.get(name, ("-", 1.5))
             self.ax.plot(
                 xs, ys,
@@ -84,3 +75,4 @@ class PlotTab(tk.Frame):
 
         self.fig.tight_layout()
         self.canvas_plot.draw()
+        print(f"[PlotTab] Отрисовка завершена")

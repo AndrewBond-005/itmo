@@ -1,13 +1,7 @@
-"""
-Определения ОДУ: правые части и точные решения
-"""
-
 import math
 
 class ODE3:
-    """y' = -2xy  (гауссова кривая)"""
     label = "y' = -2xy"
-
     @staticmethod
     def f(x: float, y: float) -> float:
         return -2 * x * y
@@ -17,9 +11,7 @@ class ODE3:
         # Решение: y = y0 * e^(-(x^2 - x0^2))
         return y0 * math.exp(-(x**2 - x0**2))
 
-
 class ODE4:
-    """y' = cos(x)  (синусоида)"""
     label = "y' = cos(x)"
 
     @staticmethod
@@ -33,7 +25,6 @@ class ODE4:
 
 
 class ODE8:
-    """y' = 2x*y + x^3  (уравнение Бернулли)"""
     label = "y' = 2xy + x³"
 
     @staticmethod
@@ -47,7 +38,6 @@ class ODE8:
 
 
 class ODE9:
-    """y' = sin(x) * y  (осциллирующий рост)"""
     label = "y' = sin(x) * y"
 
     @staticmethod

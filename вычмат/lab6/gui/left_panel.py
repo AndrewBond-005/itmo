@@ -1,10 +1,5 @@
-"""
-Левая панель управления
-"""
-
 import tkinter as tk
 from tkinter import messagebox
-
 from config import COLORS, FONT_TITLE, FONT_LABEL, FONT_ENTRY
 from funcs import ODE_LIST
 
@@ -56,7 +51,6 @@ def styled_button(parent, text, command, **kw):
 
 
 class LeftPanel(tk.Frame):
-    """Левая панель с настройками"""
 
     def __init__(self, parent, app):
         super().__init__(parent, bg=COLORS["panel"], width=310)
@@ -77,7 +71,6 @@ class LeftPanel(tk.Frame):
         self._build_methods()
         self._build_buttons()
 
-        # статус
         self.lbl_status = tk.Label(
             self, text="Готов к работе", font=("Segoe UI", 8),
             bg=COLORS["panel"], fg=COLORS["text_dim"], wraplength=270
@@ -94,7 +87,6 @@ class LeftPanel(tk.Frame):
 
     def _build_ode_selection(self):
         self._section("Выберите уравнение")
-
         for i, ode in enumerate(ODE_LIST):
             rb = tk.Radiobutton(
                 self, text=ode.label,
@@ -107,7 +99,6 @@ class LeftPanel(tk.Frame):
                 command=self._on_ode_change,
             )
             rb.pack(anchor="w", padx=24, pady=2)
-
         self.lbl_eq = tk.Label(
             self, text="", font=("Consolas", 10, "bold"),
             bg=COLORS["card"], fg=COLORS["accent2"],
@@ -122,7 +113,6 @@ class LeftPanel(tk.Frame):
 
     def _build_input_fields(self):
         self._section("Исходные данные")
-
         fields = [
             ("x₀  (начало):", self.app.var_x0),
             ("y₀  (y(x₀)):", self.app.var_y0),
@@ -140,7 +130,6 @@ class LeftPanel(tk.Frame):
 
     def _build_methods(self):
         self._section("Методы решения")
-
         chk_opts = dict(
             bg=COLORS["panel"], fg=COLORS["text"],
             activebackground=COLORS["panel"],
@@ -156,7 +145,6 @@ class LeftPanel(tk.Frame):
                        variable=self.app.var_adams, **chk_opts).pack(anchor="w", padx=24, pady=2)
         tk.Checkbutton(self, text="Точное решение",
                        variable=self.app.var_show_exact, **chk_opts).pack(anchor="w", padx=24, pady=(8, 2))
-
         tk.Frame(self, height=1, bg=COLORS["border"]).pack(fill="x", padx=16, pady=8)
 
     def _build_buttons(self):
