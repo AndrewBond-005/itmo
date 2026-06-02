@@ -61,6 +61,10 @@ class TableTab(tk.Frame):
                       [f"|Δ| {name}" for name in results]
         first_method = next(iter(results))
         xs_ref = results[first_method][0]
+        MAX_ROWS = 500
+        if len(xs_ref) > MAX_ROWS:
+            xs_ref = xs_ref[::(len(xs_ref) // MAX_ROWS + 1)]
+
         COL_W = 13
         PAD_X = 6
         PAD_Y = 4
