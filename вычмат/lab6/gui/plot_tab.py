@@ -28,13 +28,19 @@ class PlotTab(tk.Frame):
     def _style_ax(self, ax):
         ax.set_facecolor(self.colors["plot_bg"])
         ax.tick_params(colors=self.colors["text_dim"], labelsize=8)
-        for spine in ax.spines.values():
-            spine.set_color(self.colors["plot_axes"])
+
+        # Выделяем координатные оси (левую и нижнюю) чёрным цветом
+        ax.spines['left'].set_color('black')
+        ax.spines['bottom'].set_color('black')
+        ax.spines['left'].set_position('zero')
+        ax.spines['bottom'].set_position('zero')
+        ax.spines['right'].set_visible(False)
+        ax.spines['top'].set_visible(False)
+
         ax.xaxis.label.set_color(self.colors["text"])
         ax.yaxis.label.set_color(self.colors["text"])
         ax.title.set_color(self.colors["text"])
         ax.grid(True, color=self.colors["plot_grid"], linestyle="--", linewidth=0.7, alpha=0.7)
-
     def clear(self):
         self.ax.clear()
         self._style_ax(self.ax)
@@ -56,7 +62,8 @@ class PlotTab(tk.Frame):
                 marker='',
                 label=name, alpha=0.9, zorder=4
             )
-
+        self.ax.set_xlim(-2.5, 7.5)  # X от -2.5 до 7.5
+        self.ax.set_ylim(-2.5, 7.5)  # Y от -2.5 до 7.5
         self.ax.set_title(f"Решение ОДУ: {ode_label}",
                           color=self.colors["text"], fontsize=11, pad=12)
         self.ax.set_xlabel("x", fontsize=10)

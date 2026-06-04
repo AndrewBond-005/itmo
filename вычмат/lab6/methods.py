@@ -45,13 +45,13 @@ def adams(f, x0, y0, xn, h):
     for i in range(4):
         fs.append(f(xs[i], ys[i]))
     for i in range(3, n):
-        x_i = xs[-1]
-        y_i = ys[-1]
-        y_pred = y_i + h/24 * (55*fs[-1] - 59*fs[-2] + 37*fs[-3] - 9*fs[-4])
-        x_next = x_i + h
-        f_pred = f(x_next, y_pred)
-        y_corr = y_i + h/24 * (9*f_pred + 19*fs[-1] - 5*fs[-2] + fs[-3])
-        xs.append(x_next)
-        ys.append(y_corr)
-        fs.append(f(x_next, y_corr))
+        xi = xs[-1]
+        yi = ys[-1]
+        ypred = yi + h/24 * (55*fs[-1] - 59*fs[-2] + 37*fs[-3] - 9*fs[-4])
+        xnext = xi + h
+        fpred = f(xnext, ypred)
+        ycorr = yi + h/24 * (9*fpred + 19*fs[-1] - 5*fs[-2] + fs[-3])
+        xs.append(xnext)
+        ys.append(ycorr)
+        fs.append(f(xnext, ycorr))
     return xs, ys
