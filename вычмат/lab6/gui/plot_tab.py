@@ -29,7 +29,6 @@ class PlotTab(tk.Frame):
         ax.set_facecolor(self.colors["plot_bg"])
         ax.tick_params(colors=self.colors["text_dim"], labelsize=8)
 
-        # Выделяем координатные оси (левую и нижнюю) чёрным цветом
         ax.spines['left'].set_color('black')
         ax.spines['bottom'].set_color('black')
         ax.spines['left'].set_position('zero')
