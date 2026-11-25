@@ -9,8 +9,7 @@ def sigmoid(z):
 
 
 def compute_loss(X, y, theta):
-    """Log loss (binary cross-entropy)."""
-    m = len(y)
+    """Log loss """
     h = sigmoid(X @ theta)
     h = np.clip(h, 1e-15, 1 - 1e-15)
     return -np.mean(y * np.log(h) + (1 - y) * np.log(1 - h))
@@ -32,12 +31,9 @@ def compute_hessian(X, theta):
 
 def fit(X, y, learning_rate=0.1, n_iterations=1000,
         optimizer='gd', tol=1e-7, verbose=False):
-    """
-    Обучает логистическую регрессию.
-    optimizer='gd'     — градиентный спуск: theta -= lr * grad
-    optimizer='newton' — упрощённый Ньютон: theta -= lr * pinv(H) @ grad
-    Возвращает (theta, history_loss, n_iters_done, time_sec).
-    """
+
+    #Обучает логистическую регрессию.
+
     X = np.asarray(X, dtype=float)
     y = np.asarray(y, dtype=float)
     n_features = X.shape[1]

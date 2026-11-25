@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib
-matplotlib.use('Agg')  # чтобы работало без GUI
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 

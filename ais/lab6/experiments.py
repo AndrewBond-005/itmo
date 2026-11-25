@@ -14,19 +14,13 @@ def run_grid(X_train, y_train, X_test, y_test,
              lrs=(0.001, 0.01, 0.05, 0.1, 0.5),
              iters=(100, 500, 1000, 5000),
              optimizers=('gd', 'newton'),
-             newton_lrs=(0.5, 1.0),      # <-- ИСПРАВЛЕНИЕ: свой набор для Ньютона
+             newton_lrs=(0.5, 1.0),
              newton_max_iter=100):
-    """
-    Тройной цикл по гиперпараметрам.
-    Для 'newton' используем newton_lrs (классические 0.5, 1.0),
-    для 'gd' — lrs. Для Ньютона ограничиваем n_iter, чтобы не гонять
-    5000 итераций впустую.
-    """
     rows = []
     print('\n=== Grid search ===')
     for opt in optimizers:
-        cur_lrs = newton_lrs if opt == 'newton' else lrs   # <-- ИСПРАВЛЕНИЕ
-        for lr in cur_lrs:                                 # <-- ИСПРАВЛЕНИЕ: cur_lrs
+        cur_lrs = newton_lrs if opt == 'newton' else lrs
+        for lr in cur_lrs:
             for ni in iters:
                 eff_ni = min(ni, newton_max_iter) if opt == 'newton' else ni
                 theta, hist, n_done, t = fit(

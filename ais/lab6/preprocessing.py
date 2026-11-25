@@ -10,7 +10,6 @@ def load_data(path='diabetes.csv'):
 
 
 def report_missing(df):
-    """Печатает, сколько нулей в колонках, где 0 = пропуск."""
     print('\n=== Нули в колонках, где 0 = пропуск (до обработки) ===')
     for col in ZERO_AS_NAN_COLS:
         n = int((df[col] == 0).sum())
@@ -26,7 +25,6 @@ def fix_zeros(df):
 
 
 def split_data(X, y, test_size=0.2, random_state=42):
-    """Свой shuffle-split: перемешиваем индексы и режем по границе."""
     X = np.asarray(X, dtype=float)
     y = np.asarray(y, dtype=float)
     n = len(y)
@@ -41,8 +39,6 @@ def split_data(X, y, test_size=0.2, random_state=42):
 def fill_zeros_with_median(X_train, X_test, feature_names):
     """
     Заполняет NaN медианой train-набора.
-    X уже numpy-массивы; feature_names — список имён, чтобы знать, где NaN.
-    Возвращает (X_train, X_test, medians_dict).
     """
     X_train = X_train.copy()
     X_test = X_test.copy()

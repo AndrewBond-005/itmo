@@ -18,7 +18,7 @@ DATA_PATH = 'diabetes.csv'
 def main():
     os.makedirs(OUT_DIR, exist_ok=True)
 
-    # ---------- 1. Данные и статистики ----------
+    #  1. Данные и статистики 
     print('=' * 70)
     print('1. Загрузка и описательные статистики')
     print('=' * 70)
@@ -37,7 +37,7 @@ def main():
     plot_boxplots_by_class(df_raw, OUT_DIR)
     plot_correlation(df_raw, OUT_DIR)
 
-    # ---------- 2. Препроцессинг ----------
+    #  2. Препроцессинг 
     print('\n' + '=' * 70)
     print('2. Препроцессинг')
     print('=' * 70)
@@ -56,7 +56,7 @@ def main():
     y_train = data['y_train']
     y_test = data['y_test']
 
-    # ---------- 3. Базовая модель ----------
+    #  3. Базовая модель 
     print('\n' + '=' * 70)
     print('3. Базовая модель: GD, lr=0.1, n_iter=1000')
     print('=' * 70)
@@ -77,7 +77,7 @@ def main():
     for n, w in zip(names, theta):
         print(f'  {n:15s}: {w: .4f}')
 
-    # ---------- 4. Grid search ----------
+    #  4. Grid search 
     print('\n' + '=' * 70)
     print('4. Grid search по гиперпараметрам')
     print('=' * 70)
@@ -85,7 +85,7 @@ def main():
                           lrs=(0.001, 0.01, 0.05, 0.1, 0.5),
                           iters=(100, 500, 1000, 5000),
                           optimizers=('gd', 'newton'),
-                          newton_lrs=(0.5, 1.0),   # <-- ИСПРАВЛЕНИЕ
+                          newton_lrs=(0.5, 1.0),
                           newton_max_iter=100)
     df_results.to_csv('grid_results.csv', index=False)
     print('\nСохранено в grid_results.csv')
@@ -97,7 +97,7 @@ def main():
 
     plot_grid_heatmap(df_results, OUT_DIR)
 
-    # ---------- 5. Learning rate study ----------
+    #  5. Learning rate study 
     print('\n' + '=' * 70)
     print('5. Влияние learning rate')
     print('=' * 70)
@@ -105,7 +105,7 @@ def main():
                         lrs=(0.001, 0.01, 0.05, 0.1, 0.5),
                         n_iterations=1000, out_dir=OUT_DIR)
 
-    # ---------- 6. Iterations study ----------
+    #  6. Iterations study 
     print('\n' + '=' * 70)
     print('6. Влияние числа итераций')
     print('=' * 70)
@@ -114,7 +114,7 @@ def main():
                      iterations=(10, 50, 100, 200, 500, 1000, 2000, 5000),
                      out_dir=OUT_DIR)
 
-    # ---------- 7. GD vs Newton ----------
+    #  7. GD vs Newton 
     print('\n' + '=' * 70)
     print('7. Сравнение GD и Newton')
     print('=' * 70)
@@ -122,7 +122,7 @@ def main():
                        lr=0.1, gd_iters=2000, newton_iters=100,
                        out_dir=OUT_DIR)
 
-    # ---------- 8. Выводы ----------
+    #  8. Выводы 
     print('\n' + '=' * 70)
     print('8. Выводы')
     print('=' * 70)
