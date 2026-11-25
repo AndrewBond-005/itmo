@@ -4,17 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="02f023f3-7288-470f-8f27-20e595a33dc5" name="Changes" comment="сделалл сии6">
-      <change beforePath="$PROJECT_DIR$/.idea/itmo.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/itmo.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="02f023f3-7288-470f-8f27-20e595a33dc5" name="Changes" comment="поправил">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ais/lab6/experiments.py" beforeDir="false" afterPath="$PROJECT_DIR$/ais/lab6/experiments.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ais/lab6/grid_results.csv" beforeDir="false" afterPath="$PROJECT_DIR$/ais/lab6/grid_results.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ais/lab6/logistic_regression.py" beforeDir="false" afterPath="$PROJECT_DIR$/ais/lab6/logistic_regression.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ais/lab6/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/ais/lab6/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ais/lab6/plots/optimizer_compare.png" beforeDir="false" afterPath="$PROJECT_DIR$/ais/lab6/plots/optimizer_compare.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ais/lab6/preprocessing.py" beforeDir="false" afterPath="$PROJECT_DIR$/ais/lab6/preprocessing.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ais/lab6/stats_plots.py" beforeDir="false" afterPath="$PROJECT_DIR$/ais/lab6/stats_plots.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,12 +74,32 @@
       <option name="project" value="LOCAL" />
       <updated>1795557716886</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="поправил">
+      <option name="closed" value="true" />
+      <created>1795591649898</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1795591649898</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="добавил схему" />
     <MESSAGE value="сделалл сии6" />
-    <option name="LAST_COMMIT_MESSAGE" value="сделалл сии6" />
+    <MESSAGE value="поправил" />
+    <option name="LAST_COMMIT_MESSAGE" value="поправил" />
   </component>
 </project>
